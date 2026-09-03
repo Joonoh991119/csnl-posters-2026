@@ -349,3 +349,26 @@ def frame_vars(poster: dict) -> tuple[str, float]:
     if w and h:
         return f"{float(w):.0f} / {float(h):.0f}", round(float(w) / float(h), 4)
     return aspect(o), aspect_num(o)
+
+
+# ---------------------------------------------------------------- 영문 날짜
+_MON = ("Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+
+
+def fmt_date_en(start, end=None) -> str:
+    """사이트에 찍히는 날짜. 저널 표기를 따른다 — '15–16 Oct 2026'.
+
+    사이트 언어는 영어로 고정이라 화면용 날짜는 전부 이 함수를 지난다.
+    (CLI 출력은 한국어라 fmt_date_range 를 그대로 쓴다.)
+    """
+    a, b = parse_date(start), parse_date(end)
+    if not a:
+        return str(start or "")
+    if not b or b == a:
+        return f"{a.day} {_MON[a.month - 1]} {a.year}"
+    if a.year == b.year and a.month == b.month:
+        return f"{a.day}–{b.day} {_MON[a.month - 1]} {a.year}"
+    if a.year == b.year:
+        return f"{a.day} {_MON[a.month - 1]} – {b.day} {_MON[b.month - 1]} {a.year}"
+    return f"{a.day} {_MON[a.month - 1]} {a.year} – {b.day} {_MON[b.month - 1]} {b.year}"

@@ -1,12 +1,14 @@
-/* poster-site — 런타임은 세 가지 일만 한다.
-   1) 이메일 주소를 조각에서 조립한다 (저장소에 평문 주소를 두지 않는다)
-   2) 게시기간 상태를 배너로 알린다
-   3) 주소 복사
-   자바스크립트가 꺼져 있어도 포스터 PDF·서플·레퍼런스는 전부 보인다. */
+/* poster-site runtime. Five small jobs, no framework:
+   1) assemble the email address from its parts (no plain address in the repo or the HTML)
+   2) announce the publication window in a banner
+   3) copy the address
+   4) enlarge the poster in place
+   5) move between posters with the arrow keys
+   With JavaScript off, the poster, supplementary files and references all still work. */
 (function () {
   "use strict";
 
-  // ------------------------------------------------------------ 1. 이메일
+  // ------------------------------------------------------------ 1. email
   function assembleEmail() {
     var nodes = document.querySelectorAll("[data-eu][data-ed]");
     for (var i = 0; i < nodes.length; i++) {
@@ -22,7 +24,7 @@
     }
   }
 
-  // ------------------------------------------------------------ 2. 게시기간
+  // ------------------------------------------------------------ 2. publication window
   function parseDate(s) {
     if (!s) return null;
     var m = /^(\d{4})[-.\/](\d{1,2})[-.\/](\d{1,2})$/.exec(String(s).trim());
@@ -30,9 +32,11 @@
     return new Date(+m[1], +m[2] - 1, +m[3]);
   }
 
+  var MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+             "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
   function fmt(d) {
-    return d.getFullYear() + "." + String(d.getMonth() + 1).padStart(2, "0") + "." +
-      String(d.getDate()).padStart(2, "0");
+    return d.getDate() + " " + MON[d.getMonth()] + " " + d.getFullYear();
   }
 
   function windowBanner() {
@@ -45,12 +49,12 @@
     var day = 86400000, msg = "";
 
     if (start && today < start) {
-      msg = "게시 준비 중입니다 · " + fmt(start) + " 공개 예정";
+      msg = "Not open yet — this page goes live on " + fmt(start) + ".";
     } else if (end && today > end) {
-      msg = "게시 기간이 끝난 페이지입니다 (" + fmt(end) + " 종료). 자료가 필요하면 저자에게 직접 문의해 주세요.";
+      msg = "This page closed on " + fmt(end) + ". Please contact the author directly for materials.";
     } else if (end) {
       var left = Math.round((end - today) / day);
-      if (left <= 7) msg = "게시 종료까지 D-" + left + " · " + fmt(end) + " 까지 열려 있습니다";
+      if (left <= 7) msg = "Online until " + fmt(end) + " — " + left + (left === 1 ? " day" : " days") + " left.";
     }
     if (msg) {
       el.textContent = msg;
@@ -58,7 +62,7 @@
     }
   }
 
-  // ------------------------------------------------------------ 3. 복사
+  // ------------------------------------------------------------ 3. copy
   function copyButtons() {
     document.addEventListener("click", function (ev) {
       var btn = ev.target.closest("[data-copy]");
@@ -70,7 +74,7 @@
       var done = function () {
         var old = btn.getAttribute("data-label") || btn.textContent;
         btn.setAttribute("data-label", old);
-        btn.textContent = "복사됨";
+        btn.textContent = "Copied";
         setTimeout(function () { btn.textContent = old; }, 1600);
       };
       if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -84,9 +88,9 @@
     });
   }
 
-  // ------------------------------------------------------------ 4. 포스터 확대
-  // 학회장에서 사람들은 휴대폰으로 포스터의 그림 한 칸을 확대해 본다.
-  // PDF 뷰어로 넘기면 그 흐름이 끊기므로, 같은 페이지에서 바로 키운다.
+  // ------------------------------------------------------------ 4. enlarge
+  // At a meeting people zoom into one panel of a poster on their phone.
+  // Handing them off to a PDF viewer breaks that, so it happens in place.
   function lightbox() {
     var lb = document.getElementById("lightbox");
     var frame = document.querySelector(".poster-frame[data-zoom]");
@@ -113,7 +117,7 @@
     }
     function toggleScale() {
       var full = img.classList.toggle("full");
-      scaleBtn.textContent = full ? "맞춤" : "100%";
+      scaleBtn.textContent = full ? "Fit" : "100%";
       if (full) {
         stage.scrollLeft = (stage.scrollWidth - stage.clientWidth) / 2;
       }
@@ -127,7 +131,7 @@
         else toggleScale();
         return;
       }
-      if (ev.target === stage) close();          // 배경을 누르면 닫힌다
+      if (ev.target === stage) close();          // click the backdrop to close
       else if (ev.target === img) toggleScale();
     });
     document.addEventListener("keydown", function (ev) {
@@ -137,10 +141,10 @@
     });
   }
 
-  // ------------------------------------------------------------ 5. 좌우 이동
+  // ------------------------------------------------------------ 5. arrow navigation
   function arrowNav() {
-    var prev = document.querySelector('.stepper a[aria-label^="이전"]');
-    var next = document.querySelector('.stepper a[aria-label^="다음"]');
+    var prev = document.querySelector('.stepper a[aria-label^="Previous"]');
+    var next = document.querySelector('.stepper a[aria-label^="Next"]');
     document.addEventListener("keydown", function (ev) {
       var lb = document.getElementById("lightbox");
       if (lb && lb.classList.contains("on")) return;

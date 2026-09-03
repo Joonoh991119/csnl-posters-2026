@@ -20,7 +20,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from sitelib import (  # noqa: E402
-    esc, fmt_date_range, frame_vars, human_size, load_config, load_people,
+    esc, fmt_date_en, fmt_date_range, frame_vars, human_size, load_config, load_people,
     make_preview, paths, poster_geometry, window_state,
 )
 
@@ -57,9 +57,14 @@ def btn(label: str, href: str, primary=False, external=False, extra="") -> str:
     return f'<a class="{cls}" href="{esc(href)}"{tgt} {extra}>{esc(label)}{ext}</a>'
 
 
-def chip(text: str, strong: str = "") -> str:
-    inner = (f"<b>{esc(strong)}</b> " if strong else "") + esc(text)
-    return f'<li class="chip">{inner}</li>'
+def fact(text: str, label: str = "") -> str:
+    """dateline 한 조각. 라벨은 저널 표기처럼 굵은 소형 텍스트로 앞에 붙는다."""
+    return (f"<span>{f'<b>{esc(label)}</b> ' if label else ''}{esc(text)}</span>")
+
+
+def joined(parts: list[str]) -> str:
+    sep = '<span class="sep" aria-hidden="true">·</span>'
+    return sep.join(parts)
 
 
 def size_chip(poster: dict) -> str:
@@ -68,20 +73,25 @@ def size_chip(poster: dict) -> str:
     알려진 규격에 맞지 않으면 규격 이름을 붙이지 않는다 — 실제 mm 는 포스터 아래에 따로 찍힌다.
     이미지 포스터는 물리 크기를 모르므로 '비율' 이라고 밝힌다.
     """
-    o = {"portrait": "세로", "landscape": "가로"}.get(poster.get("orientation"), "")
+    o = {"portrait": "portrait", "landscape": "landscape"}.get(poster.get("orientation"), "")
     label = poster.get("size_label") or poster.get("size") or ""
     kind = poster.get("kind")
     if label and kind == "image":
-        return f"{label} 비율 · {o}".strip(" ·")
+        return f"{label} aspect, {o}".strip(", ")
     if label:
         return f"{label} {o}".strip()
     return o
 
 
 def person_display(p: dict) -> tuple[str, str]:
-    name = p.get("name") or p.get("name_en") or p.get("initials") or p.get("id", "")
-    sub = p.get("name_en") if p.get("name") and p.get("name_en") else ""
-    return name, sub
+    """(주 표기, 보조 표기). 사이트 언어가 영어라 영문 이름이 앞에 온다.
+
+    영문 이름이 없으면 한글 이름이 주 표기가 된다 — 없는 것을 지어내지 않는다.
+    """
+    en, ko = p.get("name_en"), p.get("name")
+    main = en or ko or p.get("initials") or p.get("id", "")
+    sub = ko if (en and ko) else ""
+    return main, sub
 
 
 def conf_label(p: dict) -> str:
@@ -106,7 +116,7 @@ def ordered(cfg: dict) -> list[dict]:
 # ---------------------------------------------------------------- index
 def build_index(cfg: dict, people: dict[str, dict], out: Path) -> None:
     site = cfg.get("site", {})
-    title = site.get("title") or site.get("lab_short") or "Poster pages"
+    title = site.get("title") or site.get("lab_short") or "Posters"
     lab = site.get("lab_name") or site.get("lab_short") or ""
 
     cards = []
@@ -118,32 +128,31 @@ def build_index(cfg: dict, people: dict[str, dict], out: Path) -> None:
         pno = esc(part.get("poster_no") or "")
         name, sub = person_display(p or part)
         name_block = (f'<span class="card-name">{esc(name)}'
-                      + (f'<span class="en">{esc(sub)}</span>' if sub else "") + "</span>")
+                      + (f' <span class="en">{esc(sub)}</span>' if sub else "") + "</span>")
         if not p:
             cards.append(
                 '<div class="card pending" aria-disabled="true">'
-                '<div class="thumb none">준비 중</div>'
+                '<div class="thumb none">Pending</div>'
                 f'<div class="card-body"><div class="card-top"><span class="pno">{pno}</span>{name_block}</div>'
-                '<p class="card-title">아직 정보가 등록되지 않았습니다.</p>'
-                '<div class="card-foot"><span class="state">준비 중</span></div></div></div>'
+                '<p class="card-title">Not submitted yet.</p></div></div>'
             )
             continue
         poster = p.get("poster", {}) or {}
         thumb = poster.get("thumb") or poster.get("preview")
         thumb_html = (f'<div class="thumb"><img src="files/{esc(pid)}/{esc(thumb)}" alt="" loading="lazy"></div>'
-                      if thumb else '<div class="thumb none">미리보기 없음</div>')
+                      if thumb else '<div class="thumb none">No preview</div>')
         foot = []
         if conf_label(p):
             foot.append(esc(conf_label(p)))
-        when = fmt_date_range((p.get("conference", {}) or {}).get("date"),
-                              (p.get("conference", {}) or {}).get("date_end"))
+        when = fmt_date_en((p.get("conference", {}) or {}).get("date"),
+                           (p.get("conference", {}) or {}).get("date_end"))
         if when:
             foot.append(esc(when))
-        t = poster.get("title") or ""
+        ttl = poster.get("title") or ""
         cards.append(
             f'<a class="card" href="p/{esc(pid)}.html">{thumb_html}'
             f'<div class="card-body"><div class="card-top"><span class="pno">{pno}</span>{name_block}</div>'
-            + (f'<p class="card-title">{esc(t)}</p>' if t else "")
+            + (f'<p class="card-title">{esc(ttl)}</p>' if ttl else "")
             + f'<div class="card-foot">{"".join(f"<span>{x}</span>" for x in foot)}</div></div></a>'
         )
 
@@ -151,46 +160,49 @@ def build_index(cfg: dict, people: dict[str, dict], out: Path) -> None:
     if site.get("members_url"):
         links.append(btn("Lab members", site["members_url"], primary=True, external=True))
     if site.get("lab_home_url"):
-        links.append(btn("연구실 홈", site["lab_home_url"], external=True))
+        links.append(btn("Lab home", site["lab_home_url"], external=True))
 
-    chips = []
-    for c in sorted({conf_label(p) for p in people.values() if conf_label(p)}):
-        chips.append(chip(c))
+    facts = []
+    confs = sorted({conf_label(p) for p in people.values() if conf_label(p)})
+    if confs:
+        facts.append(fact(", ".join(confs), "Meetings"))
     w = cfg.get("window", {}) or {}
     if w.get("start") or w.get("end"):
-        chips.append(chip(fmt_date_range(w.get("start"), w.get("end")), "게시"))
-
+        facts.append(fact(fmt_date_en(w.get("start"), w.get("end")), "Online"))
     ready, total = len(people), len(cfg.get("participants", []))
+    facts.append(fact(f"{ready} of {total} posted", "Posters"))
+
     html = f"""<!DOCTYPE html>
-<html lang="{esc(site.get('locale', 'ko'))}">
+<html lang="en">
 <head>
-  {head(title, f"{lab} 포스터 페이지", "assets/site.css", site.get("noindex", True),
-        {"title": title, "desc": f"{lab} · 학회 포스터 {total}편"})}
+  {head(title, f"{lab} — conference posters", "assets/site.css", site.get("noindex", True),
+        {"title": title, "desc": f"{lab} — {total} conference posters"})}
 </head>
 <body>
-<a class="skip" href="#main">본문으로 건너뛰기 / Skip to content</a>
+<a class="skip" href="#main">Skip to content</a>
 <div class="banner" id="window-banner" hidden role="status"></div>
 
-<header class="hero"><div class="wrap">
-  <p class="eyebrow">{esc(lab)}</p>
+<header class="masthead"><div class="wrap">
+  <p class="imprint">{esc(lab)}</p>
   <h1>{esc(title)}</h1>
   {f'<p class="lede">{esc(site.get("lede"))}</p>' if site.get("lede") else ""}
-  <ul class="chips">{"".join(chips)}</ul>
+  <ul class="rule-list">{"".join(f"<li>{f}</li>" for f in facts)}</ul>
   <div class="actions">{"".join(links)}</div>
 </div></header>
 
 <main id="main"><div class="wrap">
   <section class="section">
-    <h2>Posters · {ready} / {total}</h2>
+    <h2>Posters</h2>
     {'<div class="grid">' + "".join(cards) + '</div>' if cards
-     else '<p class="empty-note">참가자가 아직 등록되지 않았습니다.</p>'}
+     else '<p class="empty-note">No participants registered yet.</p>'}
   </section>
 </div></main>
 
 <footer class="foot"><div class="wrap">
   <p>{esc(lab)}</p>
-  {f'<p>게시 기간 {esc(fmt_date_range(w.get("start"), w.get("end")))}</p>' if (w.get("start") or w.get("end")) else ""}
-  <p>학회 기간 동안만 열어 두는 임시 페이지입니다. 자료의 저작권은 각 저자에게 있습니다.</p>
+  {f'<p>Online {esc(fmt_date_en(w.get("start"), w.get("end")))}.</p>' if (w.get("start") or w.get("end")) else ""}
+  <p>A temporary page kept open for the duration of the meeting.
+     Copyright in each poster and its supplementary material remains with its authors.</p>
   {f'<p>{esc(site.get("contact_note"))}</p>' if site.get("contact_note") else ""}
 </div></footer>
 
@@ -209,57 +221,60 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict) -> No
     name, sub = person_display(p)
     poster = p.get("poster", {}) or {}
     conf = p.get("conference", {}) or {}
-    title = poster.get("title") or f"{name} 포스터"
+    title = poster.get("title") or f"Poster — {name}"
 
-    metas = []
+    # dateline: 학회 · 날짜 · 세션 · 장소 — 표가 아니라 한 줄로. 저널의 발행 정보 줄과 같다.
+    line = []
     if conf.get("name") or conf.get("short"):
-        metas.append(chip(conf.get("name") or conf.get("short")))
-    when = fmt_date_range(conf.get("date"), conf.get("date_end"))
+        line.append(fact(conf.get("name") or conf.get("short")))
+    when = fmt_date_en(conf.get("date"), conf.get("date_end"))
     if when:
-        metas.append(chip(when))
-    if p.get("poster_no"):
-        metas.append(chip(p["poster_no"], "포스터"))
+        line.append(fact(when))
     if conf.get("session"):
-        metas.append(chip(conf["session"]))
+        line.append(fact(conf["session"]))
     if conf.get("venue") or conf.get("city"):
-        metas.append(chip(conf.get("venue") or conf.get("city")))
-    spec = size_chip(poster)
-    if spec:
-        metas.append(chip(spec))
+        line.append(fact(conf.get("venue") or conf.get("city")))
 
     ratio, ratio_n = frame_vars(poster)
     fstyle = f"--poster-ratio: {ratio}; --poster-ar: {ratio_n}"
-    pdf_rel = f"{files_rel}/{pid}/{poster['file']}" if poster.get("file") else ""
+    file_rel = f"{files_rel}/{pid}/{poster['file']}" if poster.get("file") else ""
     prev_rel = f"{files_rel}/{pid}/{poster['preview']}" if poster.get("preview") else ""
 
     if prev_rel:
-        frame = (f'<button class="poster-frame" style="{fstyle}" data-zoom="{esc(prev_rel)}" '
-                 f'aria-label="포스터 크게 보기 / Enlarge poster">'
-                 f'<img src="{esc(prev_rel)}" alt="{esc(title)} 포스터">'
-                 f'<span class="zoom-hint">확대 +</span></button>')
-    elif pdf_rel:
-        frame = ('<div class="poster-frame empty"><p>미리보기 이미지가 없습니다.</p>'
-                 '<p>아래 버튼으로 원본 파일을 열어 주세요.</p></div>')
+        plate = (f'<button class="plate" style="{fstyle}" data-zoom="{esc(prev_rel)}" '
+                 f'aria-label="Enlarge poster">'
+                 f'<img src="{esc(prev_rel)}" alt="Poster: {esc(title)}">'
+                 f'<span class="zoom">Zoom</span></button>')
+    elif file_rel:
+        plate = ('<div class="plate empty"><p>No preview image was generated.</p>'
+                 '<p>Open the original file below.</p></div>')
     else:
-        frame = '<div class="poster-frame empty"><p>포스터 파일이 아직 등록되지 않았습니다.</p></div>'
+        plate = '<div class="plate empty"><p>The poster file has not been uploaded yet.</p></div>'
+
+    # 캡션 — 저널 그림 설명처럼 규격·해상도·용량을 한 줄로
+    cap = []
+    spec = size_chip(poster)
+    if spec:
+        cap.append(spec)
+    if poster.get("w_mm") and poster.get("h_mm"):
+        cap.append(f'{poster["w_mm"]:.0f} × {poster["h_mm"]:.0f} mm')
+    elif poster.get("w_px") and poster.get("h_px"):
+        cap.append(f'{poster["w_px"]} × {poster["h_px"]} px')
+    if poster.get("bytes"):
+        cap.append(human_size(poster["bytes"]))
+    caption = ("<p class=\"caption\"><b>Poster.</b> " + esc(" · ".join(cap)) + ". "
+               "Click the plate to enlarge; the original file is linked below.</p>") if cap else ""
 
     pactions = []
-    if pdf_rel:
-        kind = "PDF" if poster["file"].lower().endswith(".pdf") else "원본"
-        pactions.append(btn(f"포스터 {kind} 열기", pdf_rel, primary=True, external=True))
-        pactions.append(btn("내려받기", pdf_rel, extra="download"))
-    pmeta = []
-    if poster.get("w_mm") and poster.get("h_mm"):
-        pmeta.append(f'{poster["w_mm"]:.0f} × {poster["h_mm"]:.0f} mm')
-    elif poster.get("w_px") and poster.get("h_px"):
-        pmeta.append(f'{poster["w_px"]} × {poster["h_px"]} px')
-    if poster.get("bytes"):
-        pmeta.append(human_size(poster["bytes"]))
+    if file_rel:
+        kind = "PDF" if poster["file"].lower().endswith(".pdf") else "image"
+        pactions.append(btn(f"Open original ({kind})", file_rel, primary=True, external=True))
+        pactions.append(btn("Download", file_rel, extra="download"))
 
     sections = []
     if p.get("abstract"):
         sections.append('<section class="section"><h2>Abstract</h2>'
-                        f'<div class="prose"><p>{esc(p["abstract"])}</p></div></section>')
+                        f'<p class="abstract">{esc(p["abstract"])}</p></section>')
 
     supp = [s for s in (p.get("supplementary") or []) if s.get("file")]
     if supp:
@@ -274,7 +289,7 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict) -> No
                 f'<p class="name">{esc(s.get("title") or Path(s["file"]).name)}</p>'
                 + (f'<p class="note">{esc(s.get("note"))}</p>' if s.get("note") else "")
                 + f'<p class="meta">{esc(" · ".join(bits))}</p></div>'
-                f'<span class="dl">{btn("열기", rel, external=True)}</span></li>'
+                f'<span class="dl">{btn("Open", rel, external=True)}</span></li>'
             )
         sections.append('<section class="section"><h2>Supplementary</h2>'
                         '<ul class="list">' + "".join(items) + "</ul></section>")
@@ -283,13 +298,11 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict) -> No
     if refs:
         items = []
         for r in refs:
-            line = esc(r.get("text") or "")
+            body = esc(r.get("text") or "")
             link = r.get("url") or (f"https://doi.org/{r['doi']}" if r.get("doi") else "")
             if link:
-                items.append(f'<li>{line} <a href="{esc(link)}" target="_blank" rel="noopener">'
-                             f'{esc(r.get("doi") or link)}</a></li>')
-            else:
-                items.append(f"<li>{line}</li>")
+                body += f' <a href="{esc(link)}" target="_blank" rel="noopener">{esc(r.get("doi") or link)}</a>'
+            items.append(f"<li>{body}</li>")
         sections.append('<section class="section"><h2>References</h2>'
                         '<ol class="refs">' + "".join(items) + "</ol></section>")
 
@@ -299,10 +312,10 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict) -> No
     if email.get("user") and email.get("domain"):
         cbtns.append(f'<a class="btn btn-primary" id="mail-{esc(pid)}" href="#" aria-disabled="true" '
                      f'data-eu="{esc(email["user"])}" data-ed="{esc(email["domain"])}">'
-                     f'이메일 <span data-email-text></span></a>')
-        cbtns.append(f'<button class="btn" type="button" data-copy="#mail-{esc(pid)}">주소 복사</button>')
+                     f'Email <span data-email-text></span></a>')
+        cbtns.append(f'<button class="btn" type="button" data-copy="#mail-{esc(pid)}">Copy address</button>')
     for key, label in (("linkedin", "LinkedIn"), ("scholar", "Google Scholar"),
-                       ("site", "Personal site"), ("profile_url", "연구실 프로필")):
+                       ("site", "Personal site"), ("profile_url", "Lab profile")):
         if contact.get(key):
             cbtns.append(btn(label, contact[key], external=True))
     if cbtns:
@@ -315,55 +328,56 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict) -> No
         return f'<a class="step" href="{esc(target)}.html" aria-label="{aria}">{label}</a>'
 
     html = f"""<!DOCTYPE html>
-<html lang="{esc(site.get('locale', 'ko'))}">
+<html lang="en">
 <head>
-  {head(f"{p.get('poster_no', '')} {name} · {title}".strip(), title, "../assets/site.css",
+  {head(f"{p.get('poster_no', '')} {name} — {title}".strip(), title, "../assets/site.css",
         site.get("noindex", True),
-        {"title": title, "desc": f"{name} · {conf_label(p)}", "image": prev_rel})}
+        {"title": title, "desc": f"{name} — {conf_label(p)}", "image": prev_rel})}
 </head>
 <body>
-<a class="skip" href="#main">본문으로 건너뛰기 / Skip to content</a>
+<a class="skip" href="#main">Skip to content</a>
 <div class="banner" id="window-banner" hidden role="status"></div>
 
 <nav class="topbar"><div class="wrap">
-  <a class="back" href="../index.html">← 목록</a>
+  <a class="back" href="../index.html">← All posters</a>
   <span class="here">{esc(p.get('poster_no', ''))} · {esc(name)}</span>
   <span class="stepper">
-    {step(nav.get('prev'), '‹', '이전 포스터 / Previous poster')}
-    {step(nav.get('next'), '›', '다음 포스터 / Next poster')}
+    {step(nav.get('prev'), '‹', 'Previous poster')}
+    {step(nav.get('next'), '›', 'Next poster')}
   </span>
 </div></nav>
 
-<main id="main"><div class="wrap">
-  <header class="person-head">
-    <p class="eyebrow">{esc(conf_label(p))}</p>
+<main id="main">
+  <article class="article"><div class="wrap">
+    <p class="eyebrow">{esc(p.get('poster_no', ''))}{' · ' if p.get('poster_no') and conf_label(p) else ''}{esc(conf_label(p))}</p>
     <h1>{esc(title)}</h1>
-    {f'<p class="title-en">{esc(poster.get("title_en"))}</p>' if poster.get("title_en") else ""}
+    {f'<p class="subtitle">{esc(poster.get("title_en"))}</p>' if poster.get("title_en") else ""}
     <p class="byline">{esc(p.get("authors") or name)}</p>
     {f'<p class="affil">{esc(p.get("affiliation"))}</p>' if p.get("affiliation") else ""}
-    <ul class="metabar">{"".join(metas)}</ul>
-  </header>
+    {f'<p class="dateline">{joined(line)}</p>' if line else ""}
 
-  <div class="poster-panel">
-    {frame}
-    <div class="poster-meta">{"".join(f"<span>{m}</span>" for m in pmeta)}</div>
-    <div class="actions">{"".join(pactions)}</div>
-  </div>
+    <div class="figure">
+      {plate}
+      {caption}
+      <div class="actions">{"".join(pactions)}</div>
+    </div>
+  </div></article>
 
-  {"".join(sections)}
-</div></main>
+  <div class="wrap">{"".join(sections)}</div>
+</main>
 
 <footer class="foot"><div class="wrap">
   <p>{esc(site.get('lab_name') or site.get('lab_short') or '')}</p>
-  <p>학회 기간 동안만 열어 두는 임시 페이지입니다. 포스터와 부속 자료의 저작권은 저자에게 있습니다.</p>
+  <p>A temporary page kept open for the duration of the meeting.
+     Copyright in the poster and its supplementary material remains with its authors.</p>
 </div></footer>
 
-<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="포스터 확대 보기">
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Poster, enlarged">
   <div class="lb-bar">
     <button class="lb-btn" type="button" data-lb="scale">100%</button>
-    <button class="lb-btn" type="button" data-lb="close">닫기 ✕</button>
+    <button class="lb-btn" type="button" data-lb="close">Close ✕</button>
   </div>
-  <div class="stage"><img alt="{esc(title)} 포스터 확대"></div>
+  <div class="stage"><img alt="Poster: {esc(title)}"></div>
 </div>
 
 <script>window.__SITE__ = {json.dumps({"window": cfg.get("window", {})}, ensure_ascii=False)};</script>
