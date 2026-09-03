@@ -1,0 +1,54 @@
+# poster-site — 누가 자기 포스터 정보를 push 하면 사이트가 다시 서고 배포된다.
+# 이 파일은 /poster-site:publish 가 넣어 준다. 손으로 고쳐도 되지만,
+# 다음 publish 때 덮인다 (--keep-workflow 로 막을 수 있다).
+name: build and deploy poster site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'poster-site/**'
+      - 'site-tools/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 포스터 첫 페이지를 미리보기 이미지로 굽는 데 쓴다.
+      - name: install poppler
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
+
+      # 오류가 있으면 여기서 멈춘다 — 깨진 사이트를 배포하지 않는다.
+      # 학회 날짜 누락 같은 '경고' 는 통과시킨다.
+      - name: check
+        run: python3 site-tools/scripts/check_site.py --root ./poster-site
+
+      - name: build
+        run: python3 site-tools/scripts/build_site.py --root ./poster-site
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: poster-site/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

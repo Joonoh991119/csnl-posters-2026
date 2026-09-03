@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "site": {
+    "title": "CSNL Posters · 2026",
+    "lab_name": "Cognitive and Systems Neuroscience Laboratory (CSNL)",
+    "lab_short": "CSNL · Seoul National University",
+    "lede": "학회에서 발표한 포스터 원본과, 포스터 한 장에는 담지 못한 보충 자료·인용 목록·연락처입니다.",
+    "members_url": "https://www.snu-csnl.com/team-3",
+    "lab_home_url": "https://www.snu-csnl.com/",
+    "contact_note": "",
+    "locale": "ko",
+    "noindex": true
+  },
+  "window": {
+    "start": "2026-09-05",
+    "end": "2026-11-30",
+    "timezone": "Asia/Seoul"
+  },
+  "defaults": {
+    "conference": "",
+    "conference_short": "",
+    "poster_size": "A0",
+    "orientation": "",
+    "affiliation": "Department of Brain and Cognitive Sciences, Seoul National University"
+  },
+  "participants": [
+    {
+      "id": "jop",
+      "initials": "JOP",
+      "name": "박준오",
+      "name_en": "Joonoh Park",
+      "poster_no": "P1",
+      "order": 1
+    },
+    {
+      "id": "byl",
+      "initials": "BYL",
+      "name": "이보연",
+      "name_en": "Boyun Lee",
+      "poster_no": "P-427",
+      "order": 2
+    },
+    {
+      "id": "smj",
+      "initials": "SMJ",
+      "name": "",
+      "name_en": "Saemi Jung",
+      "poster_no": "P3",
+      "order": 3
+    }
+  ],
+  "deploy": {
+    "kind": "github-pages",
+    "repo": "",
+    "url": ""
+  }
+}

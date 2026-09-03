@@ -1,0 +1,75 @@
+{
+  "id": "jop",
+  "initials": "JOP",
+  "name": "박준오",
+  "name_en": "Joonoh Park",
+  "poster_no": "P1",
+  "affiliation": "Department of Brain and Cognitive Sciences, Seoul National University",
+  "authors": "Joonoh Park, Sang-Hun Lee",
+  "abstract": "",
+  "conference": {
+    "name": "CBrain 2026",
+    "short": "CBrain 2026",
+    "date": "",
+    "date_end": "",
+    "session": "",
+    "city": "",
+    "venue": ""
+  },
+  "poster": {
+    "title": "The Fate of Uncertainty in the Transformation from Absolute to Relative Magnitude",
+    "title_en": "",
+    "file": "poster.png",
+    "kind": "image",
+    "orientation": "portrait",
+    "w_px": 3312,
+    "h_px": 4681,
+    "size": "A0",
+    "size_label": "A0"
+  },
+  "supplementary": [],
+  "references": [
+    {
+      "text": "Stewart N, Chater N & Brown GDA (2006). Decision by sampling. Cogn Psychol 53(1):1–26.",
+      "doi": "",
+      "url": ""
+    },
+    {
+      "text": "Sheahan H, Luyckx F, Nelli S, Teupe C & Summerfield C (2021). Neural state space alignment for magnitude generalization in humans and recurrent networks. Neuron 109(7):1214–1226.",
+      "doi": "",
+      "url": ""
+    },
+    {
+      "text": "Lee H, Lim J & Lee S-H (2025). Belief updating in decision-variable space. iScience 28(7):112844.",
+      "doi": "",
+      "url": ""
+    },
+    {
+      "text": "Knill DC & Pouget A (2004). The Bayesian brain: the role of uncertainty in neural coding and computation. Trends Neurosci 27(12):712–719.",
+      "doi": "",
+      "url": ""
+    },
+    {
+      "text": "Körding KP & Wolpert DM (2006). Bayesian decision theory in sensorimotor control. Trends Cogn Sci 10(7):319–326.",
+      "doi": "",
+      "url": ""
+    },
+    {
+      "text": "Ma WJ & Jazayeri M (2014). Neural coding of uncertainty and probability. Annu Rev Neurosci 37:205–220.",
+      "doi": "",
+      "url": ""
+    },
+    {
+      "text": "Jabar SB & Fougnie D (2022). Perception is rich and probabilistic. Sci Rep 12:13172.",
+      "doi": "",
+      "url": ""
+    }
+  ],
+  "contact": {
+    "email": {
+      "user": "joonop99",
+      "domain": "snu.ac.kr"
+    }
+  },
+  "updated": "2026-09-03"
+}

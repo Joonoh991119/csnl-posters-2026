@@ -1,0 +1,27 @@
+{
+  "site": {
+    "title": "CSNL Posters · 2026 Autumn",
+    "lab_name": "Computational and Systems Neuroscience Laboratory, Seoul National University",
+    "lab_short": "CSNL @ SNU",
+    "lede": "2026년 가을 학회에서 발표한 포스터와, 포스터에 담지 못한 보충 자료입니다.",
+    "members_url": "https://example.com/lab-members",
+    "lab_home_url": "https://example.com/",
+    "contact_note": "",
+    "locale": "ko",
+    "noindex": true
+  },
+  "window": { "start": "2026-09-10", "end": "2026-11-30", "timezone": "Asia/Seoul" },
+  "defaults": {
+    "conference": "",
+    "conference_short": "",
+    "poster_size": "A0",
+    "orientation": "",
+    "affiliation": "서울대학교 뇌인지과학과 CSNL"
+  },
+  "participants": [
+    { "initials": "JOP", "name": "박준오", "name_en": "Joonoh Park", "poster_no": "P1" },
+    { "initials": "BYL", "name": "이보연", "name_en": "Boyeon Lee", "poster_no": "P2" },
+    { "initials": "SMJ", "name": "서민준", "name_en": "Minjun Seo", "poster_no": "P3" }
+  ],
+  "deploy": { "kind": "github-pages", "repo": "", "url": "" }
+}

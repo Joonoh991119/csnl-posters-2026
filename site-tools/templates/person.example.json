@@ -1,0 +1,37 @@
+{
+  "initials": "JOP",
+  "name": "박준오",
+  "name_en": "Joonoh Park",
+  "poster_no": "P1",
+  "affiliation": "서울대학교 뇌인지과학과 CSNL",
+  "authors": "박준오, 이보현, 이상훈",
+  "abstract": "한 단락. 없으면 이 항목을 빼면 된다.",
+  "conference": {
+    "name": "한국뇌신경과학회 CBrain 2026",
+    "short": "CBrain 2026",
+    "date": "2026-10-15",
+    "date_end": "2026-10-16",
+    "session": "Poster Session II",
+    "city": "서울",
+    "venue": ""
+  },
+  "poster": {
+    "title": "간격 재현에서의 중심경향: 사전분포 비대칭이 만드는 편향",
+    "title_en": "Central tendency in interval reproduction",
+    "path": "~/Desktop/poster_final.pdf"
+  },
+  "supplementary": [
+    { "title": "Supplementary Figure S1", "note": "피험자별 편향 곡선 전체", "path": "~/Desktop/S1.pdf" }
+  ],
+  "references": [
+    { "text": "Jazayeri & Shadlen (2010). Temporal context calibrates interval timing. Nat Neurosci.", "doi": "10.1038/nn.2590" },
+    "Wei & Stocker (2015). A Bayesian observer model constrained by efficient coding. Nat Neurosci."
+  ],
+  "contact": {
+    "email": "someone@example.com",
+    "linkedin": "linkedin.com/in/example",
+    "scholar": "",
+    "site": "",
+    "profile_url": ""
+  }
+}
