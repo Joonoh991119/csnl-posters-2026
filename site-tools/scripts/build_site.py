@@ -430,7 +430,12 @@ def stage_assets(pth: dict, p: dict, dist: Path, do_preview: bool, long_edge: in
                     made = out_jpg if out_jpg.exists() else next(
                         (q for q in dst.glob("preview.*") if q.suffix != ".pdf"), out_jpg)
                     poster["preview"] = made.name
-                    notes.append(f"{pid}: 미리보기 생성 ({tool})")
+                    if tool == "copy":
+                        notes.append(f"{pid}: 축소 도구가 없어 원본을 그대로 미리보기로 썼다 "
+                                     f"({human_size(made.stat().st_size)}) — 학회장 모바일에서 무겁다. "
+                                     "imagemagick 또는 sips 가 필요하다")
+                    else:
+                        notes.append(f"{pid}: 미리보기 생성 ({tool})")
                 else:
                     notes.append(f"{pid}: 미리보기 도구가 없다 (pdftoppm / magick / sips / qlmanage). "
                                  "PDF 버튼만 나온다 — brew install poppler 로 해결된다")
@@ -440,6 +445,10 @@ def stage_assets(pth: dict, p: dict, dist: Path, do_preview: bool, long_edge: in
                     poster["thumb"] = th.name
                 else:
                     poster["thumb"] = poster["preview"]
+                    if (dst / poster["preview"]).stat().st_size > 400_000:
+                        notes.append(f"{pid}: 썸네일을 못 만들어 목록 카드가 "
+                                     f"{human_size((dst / poster['preview']).stat().st_size)} 이미지를 "
+                                     "그대로 불러온다 — imagemagick 을 깔면 해결된다")
         else:
             notes.append(f"{pid}: {poster['file']} 이 assets/{pid}/ 에 없다")
 
