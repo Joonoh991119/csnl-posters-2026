@@ -384,7 +384,14 @@ def link_value(v) -> str:
     if not v:
         return ""
     if isinstance(v, str):
-        return v.strip()
+        u = v.strip()
+        if not u:
+            return ""
+        # 스킴이 빠진 주소는 상대경로로 잡혀 404 가 된다. 사람이 브라우저에서 JSON 을 고치는 한
+        # 이건 계속 일어난다 — 경고하지 말고 그냥 붙여 준다.
+        if not re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*:", u) and "." in u.split("/")[0]:
+            u = "https://" + u.lstrip("/")
+        return u
     if isinstance(v, dict):
         for key in ("url", "href", "link", "value"):
             if v.get(key):

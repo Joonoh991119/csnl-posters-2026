@@ -134,8 +134,8 @@ def main() -> int:
             if raw and not link_value(raw):
                 errors.append(f"{who}: contact.{key} 를 링크로 읽을 수 없다 ({raw!r}). "
                               '문자열이나 {"url": "..."} 형태여야 한다')
-            elif raw and not link_value(raw).startswith(("http://", "https://")):
-                warns.append(f"{who}: contact.{key} 에 http(s) 가 없다 — 링크가 상대경로로 잡힌다")
+            elif raw and isinstance(raw, str) and not raw.strip().lower().startswith(("http://", "https://")):
+                infos.append(f"{who}: contact.{key} 에 스킴이 없어 https:// 를 붙여 내보낸다")
         if not c.get("email"):
             infos.append(f"{who}: 이메일 없음 (선택 항목)")
         if not c.get("linkedin"):
