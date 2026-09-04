@@ -17,7 +17,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from sitelib import (  # noqa: E402
-    load_config, parse_date, paths, poster_geometry, read_json, slug, write_json,
+    link_value, load_config, parse_date, paths, poster_geometry, read_json, slug, write_json,
 )
 
 EMAIL_RE = re.compile(r"^([^@\s]+)@([^@\s]+\.[^@\s]+)$")
@@ -36,9 +36,9 @@ def norm_email(value):
 
 
 def norm_url(value, label):
-    if not value:
+    v = link_value(value)          # {"url": "..."} 처럼 싸여 와도 받는다
+    if not v:
         return ""
-    v = str(value).strip()
     if not v.startswith(("http://", "https://")):
         v = "https://" + v
     if label == "linkedin" and "linkedin.com" not in v:
@@ -157,8 +157,9 @@ def main() -> int:
     if em:
         contact["email"] = em
     for key in ("linkedin", "scholar", "site", "profile_url"):
-        if c_in.get(key):
-            contact[key] = norm_url(c_in[key], key)
+        u = norm_url(c_in.get(key), key)
+        if u:
+            contact[key] = u
 
     person = {
         "id": pid,

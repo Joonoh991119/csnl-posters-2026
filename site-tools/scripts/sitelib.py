@@ -372,3 +372,24 @@ def fmt_date_en(start, end=None) -> str:
     if a.year == b.year:
         return f"{a.day} {_MON[a.month - 1]} – {b.day} {_MON[b.month - 1]} {a.year}"
     return f"{a.day} {_MON[a.month - 1]} {a.year} – {b.day} {_MON[b.month - 1]} {b.year}"
+
+
+def link_value(v) -> str:
+    """연락처 링크를 문자열로 정규화한다.
+
+    사람이 손으로 쓰면 {"url": "..."} 처럼 한 겹 싸서 넣는 일이 흔하다. 실제로 겪었고,
+    그대로 두면 href 에 파이썬 dict 가 찍혀 버튼이 아무 데도 안 간다.
+    문자열 · {url|href|link|value} · 리스트 첫 항목까지 받아 준다.
+    """
+    if not v:
+        return ""
+    if isinstance(v, str):
+        return v.strip()
+    if isinstance(v, dict):
+        for key in ("url", "href", "link", "value"):
+            if v.get(key):
+                return link_value(v[key])
+        return ""
+    if isinstance(v, (list, tuple)) and v:
+        return link_value(v[0])
+    return ""

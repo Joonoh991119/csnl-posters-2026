@@ -21,7 +21,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from sitelib import (  # noqa: E402
-    esc, fmt_date_en, fmt_date_range, frame_vars, human_size, load_config, load_people,
+    esc, fmt_date_en, fmt_date_range, frame_vars, human_size, link_value, load_config, load_people,
     make_preview, paths, poster_geometry, window_state,
 )
 
@@ -378,8 +378,9 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict, ver: 
         cbtns.append(f'<button class="btn" type="button" data-copy="#mail-{esc(pid)}">Copy address</button>')
     for key, label in (("linkedin", "LinkedIn"), ("scholar", "Google Scholar"),
                        ("site", "Personal site"), ("profile_url", "Lab profile")):
-        if contact.get(key):
-            cbtns.append(btn(label, contact[key], external=True))
+        url = link_value(contact.get(key))
+        if url:
+            cbtns.append(btn(label, url, external=True))
     if cbtns:
         sections.append('<section class="section"><h2>Contact</h2>'
                         f'<div class="actions">{"".join(cbtns)}</div></section>')

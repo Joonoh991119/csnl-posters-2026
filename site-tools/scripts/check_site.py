@@ -15,7 +15,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from sitelib import (  # noqa: E402
-    human_size, load_config, load_people, parse_date, paths, poster_geometry, window_state,
+    human_size, link_value, load_config, load_people, parse_date, paths, poster_geometry, window_state,
 )
 
 # 학회별 포스터 규격 힌트. 규정이 바뀌면 이 표가 아니라 학회 공지가 옳다.
@@ -129,6 +129,13 @@ def main() -> int:
                 warns.append(f"{who}: 내용이 빈 레퍼런스 항목이 있다")
 
         c = p.get("contact", {}) or {}
+        for key in ("linkedin", "scholar", "site", "profile_url"):
+            raw = c.get(key)
+            if raw and not link_value(raw):
+                errors.append(f"{who}: contact.{key} 를 링크로 읽을 수 없다 ({raw!r}). "
+                              '문자열이나 {"url": "..."} 형태여야 한다')
+            elif raw and not link_value(raw).startswith(("http://", "https://")):
+                warns.append(f"{who}: contact.{key} 에 http(s) 가 없다 — 링크가 상대경로로 잡힌다")
         if not c.get("email"):
             infos.append(f"{who}: 이메일 없음 (선택 항목)")
         if not c.get("linkedin"):
