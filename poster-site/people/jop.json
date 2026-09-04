@@ -19,11 +19,11 @@
   "poster": {
     "title": "The Fate of Uncertainty in the Transformation from Absolute to Relative Magnitude",
     "title_en": "",
-    "file": "poster.png",
-    "kind": "image",
+    "file": "poster.pdf",
+    "kind": "pdf",
     "orientation": "portrait",
-    "w_px": 3312,
-    "h_px": 4681,
+    "w_mm": 841.0,
+    "h_mm": 1188.9,
     "size": "A0",
     "size_label": "A0"
   },
@@ -71,5 +71,5 @@
       "domain": "snu.ac.kr"
     }
   },
-  "updated": "2026-09-03"
+  "updated": "2026-09-05"
 }

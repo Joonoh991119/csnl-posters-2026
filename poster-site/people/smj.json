@@ -9,7 +9,7 @@
   "abstract": "",
   "conference": {
     "name": "The 29th Annual Meeting of the Korean Society for Brain and Neural Sciences",
-    "short": "K-Brain 2026",
+    "short": "KSBNS 2026",
     "date": "2026-09-06",
     "date_end": "2026-09-08",
     "session": "Poster No. P-430",
@@ -20,13 +20,7 @@
     "title": "Human gaze preferentially samples local concentric structure during visual search",
     "title_en": "",
     "file": "poster.pdf",
-    "kind": "pdf",
-    "show_download": false,
-    "orientation": "landscape",
-    "w_mm": 1188.9,
-    "h_mm": 840.7,
-    "size": "A0",
-    "size_label": "A0"
+    "show_download": false
   },
   "supplementary": [],
   "references": [
