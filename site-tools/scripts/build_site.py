@@ -200,7 +200,28 @@ def build_index(cfg: dict, people: dict[str, dict], out: Path) -> None:
     w = cfg.get("window", {}) or {}
     if w.get("start") or w.get("end"):
         facts.append(fact(fmt_date_en(w.get("start"), w.get("end")), "Online"))
-    ready, total = len(people), len(cfg.get("participants", []))
+    roster_ids = {x["id"] for x in cfg.get("participants", [])}
+    extras = [p for pid, p in people.items() if pid not in roster_ids]
+    for p in sorted(extras, key=lambda x: str(x.get("poster_no", ""))):
+        pid = p["id"]
+        poster = p.get("poster", {}) or {}
+        thumb = poster.get("thumb") or poster.get("preview")
+        thumb_html = (f'<div class="thumb"><img src="files/{esc(pid)}/{esc(thumb)}" alt="" loading="lazy"></div>'
+                      if thumb else '<div class="thumb none">No preview</div>')
+        foot = [x for x in (esc(conf_label(p)),
+                            esc(fmt_date_en((p.get("conference", {}) or {}).get("date"),
+                                            (p.get("conference", {}) or {}).get("date_end")))) if x]
+        cards.append(
+            f'<a class="card" href="p/{esc(pid)}.html">{thumb_html}'
+            f'<div class="card-body"><div class="card-top">'
+            f'<span class="pno">{esc(p.get("poster_no") or "")}</span></div>'
+            + (f'<p class="card-title">{esc(poster.get("title") or "")}</p>' if poster.get("title") else "")
+            + f'<p class="card-authors">{authors_html(p)}</p>'
+            + f'<div class="card-foot">{"".join(f"<span>{x}</span>" for x in foot)}</div></div></a>'
+        )
+
+    shown = sum(1 for x in cfg.get("participants", []) if x["id"] in people) + len(extras)
+    ready, total = shown, len(cfg.get("participants", [])) + len(extras)
     facts.append(fact(f"{ready} of {total} posted", "Posters"))
 
     html = f"""<!DOCTYPE html>
@@ -294,7 +315,7 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict) -> No
     if poster.get("bytes"):
         cap.append(human_size(poster["bytes"]))
     caption = ("<p class=\"caption\"><b>Poster.</b> " + esc(" · ".join(cap)) + ". "
-               "Click the plate to enlarge; the original file is linked below.</p>") if cap else ""
+               "Tap or click to enlarge; the original file is linked below.</p>") if cap else ""
 
     pactions = []
     if file_rel:
@@ -442,7 +463,21 @@ def stage_assets(pth: dict, p: dict, dist: Path, do_preview: bool, long_edge: in
     pid = p["id"]
     src, dst = pth["assets"] / pid, dist / "files" / pid
     if not src.exists():
-        return [f"{pid}: assets/{pid}/ 없음 — 파일 링크가 비어 있게 된다"]
+        # GitHub 웹 UI 로 올리면 폴더를 못 만들어 파일이 assets/ 바로 밑에 떨어진다.
+        # 그때 조용히 빈 페이지를 내지 않고 주워 와서 제자리에 놓는다.
+        loose = []
+        for key in [(p.get("poster", {}) or {}).get("file")] + \
+                   [s.get("file") for s in (p.get("supplementary") or [])]:
+            if key and (pth["assets"] / Path(key).name).is_file():
+                loose.append(pth["assets"] / Path(key).name)
+        if loose:
+            src.mkdir(parents=True, exist_ok=True)
+            for f in loose:
+                shutil.move(str(f), str(src / f.name))
+            notes.append(f"{pid}: assets/ 바로 밑에 있던 파일 {len(loose)}개를 assets/{pid}/ 로 옮겼다 "
+                         "(웹 UI 업로드는 폴더를 못 만든다)")
+        else:
+            return [f"{pid}: assets/{pid}/ 없음 — 파일 링크가 비어 있게 된다"]
     dst.mkdir(parents=True, exist_ok=True)
     for item in src.rglob("*"):
         if item.is_dir() or item.name.startswith("."):

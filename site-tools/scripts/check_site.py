@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -51,6 +52,22 @@ def main() -> int:
         warns.append("lab_home_url 이 비어 있다 — 메인의 Lab homepage 버튼이 안 나온다")
     if not cfg.get("participants"):
         errors.append("참가자 명부가 비어 있다")
+
+    roster = {x["id"]: x for x in cfg.get("participants", [])}
+    for f in sorted(pth["people"].glob("*.json")):
+        try:
+            person = json.loads(f.read_text(encoding="utf-8"))
+        except Exception as e:
+            errors.append(f"{f.name} 을 읽을 수 없다: {e}")
+            continue
+        pid = person.get("id", "")
+        if pid != f.stem:
+            errors.append(f"{f.name}: 파일 이름과 id 가 다르다 (id=\"{pid}\"). "
+                          f"둘을 맞춰야 페이지 주소가 예상대로 나온다")
+        if pid and pid not in roster:
+            errors.append(f"{f.name}: id \"{pid}\" 가 명부에 없다. 명부의 id 는 "
+                          f"{', '.join(roster) or '(비어 있음)'} — QR 과 주소가 명부 id 기준이라 "
+                          "id 를 맞추거나 명부에 추가해야 한다")
 
     for part in cfg.get("participants", []):
         pid = part["id"]

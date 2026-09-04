@@ -1,9 +1,9 @@
 {
-  "id": "bolee0755",
+  "id": "byl",
   "initials": "BYL",
   "name": "이보연",
   "name_en": "Boyun Lee",
-  "poster_no": "P-427",
+  "poster_no": "P2",
   "affiliation": "Department of Brain and Cognitive Sciences, Seoul National University",
   "authors": "Boyun Lee, Sang-Hun Lee",
   "abstract": "",
@@ -12,23 +12,16 @@
     "short": "KSBNS 2026",
     "date": "2026-09-06",
     "date_end": "2026-09-08",
-    "session": "Poster Session 3",
+    "session": "Poster Session 3 · P-427",
     "city": "Daejeon",
     "venue": "DCC"
   },
   "poster": {
     "title": "Observer-specific orientation biases reveal distinct uncertainty-dependent modulation",
     "title_en": "",
-    "file": "Poster_KSBNS_BYL5.pdf",
-    "kind": "pdf",
-    "orientation": "portrait",
-    "w_px": 3304,
-    "h_px": 2107,
-    "size": "A0",
-    "size_label": "A0"
+    "file": "Poster_KSBNS_BYL5.pdf"
   },
   "supplementary": [],
-
   "references": [
     {
       "text": "Wei, X., & Stocker, A. A. (2015). A Bayesian observer model constrained by efficient coding can explain ‘anti-Bayesian’ percepts. Proceedings of the National Academy of Sciences, 112(5), 1448-1453.",
