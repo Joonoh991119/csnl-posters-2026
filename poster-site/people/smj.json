@@ -29,7 +29,29 @@
     "size_label": "A0"
   },
   "supplementary": [],
-  "references": [],
+  "references": [
+    {
+      "text": "Agrawal, S., Bethge, M., & Kümmerer, M. (2026). DeepGaze3.5-VL: Modeling scanpaths via autoregressive token prediction. arXiv."
+    },
+    {
+      "text": "Dumoulin, S. O., & Hess, R. F. (2007). Cortical specialization for concentric shape processing. Vision Research, 47(12), 1608–1613."
+    },
+    {
+      "text": "Geisler, W. S., Perry, J. S., & Najemnik, J. (2006). Visual search: The role of peripheral information measured using gaze-contingent displays. Journal of Vision, 6(9), 858–873."
+    },
+    {
+      "text": "Geisler, W. S., Perry, J. S., Super, B. J., & Gallogly, D. P. (2001). Edge co-occurrence in natural images predicts contour grouping performance. Vision Research, 41(6), 711–724."
+    },
+    {
+      "text": "Kovács, I., & Julesz, B. (1994). Perceptual sensitivity maps within globally defined visual shapes. Nature, 370(6491), 644–646."
+    },
+    {
+      "text": "Najemnik, J., & Geisler, W. S. (2005). Optimal eye movement strategies in visual search. Nature, 434(7031), 387–391."
+    },
+    {
+      "text": "Nuthmann, A., & Henderson, J. M. (2010). Object-based attentional selection in scene viewing. Journal of Vision, 10(8), Article 20."
+    }
+  ],
   "contact": {
     "email": {
       "user": "jsaemi22",
