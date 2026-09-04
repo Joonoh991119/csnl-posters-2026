@@ -84,6 +84,31 @@ def authors_html(p: dict) -> str:
     return ", ".join(out)
 
 
+def qr_block(pid: str, url: str, rel: str, has: bool) -> str:
+    """발표자가 자기 QR 을 가져가는 자리. 복사·내려받기 둘 다 둔다.
+
+    make_qr.py 가 아직 안 돌았으면 아무것도 그리지 않는다 — 빈 상자를 남기지 않는다.
+    """
+    if not has:
+        return ""
+    return (
+        '<section class="section"><h2>QR</h2><div class="qr-block">'
+        f'<img class="qr" src="{rel}/{esc(pid)}.svg" width="132" height="132" '
+        f'alt="QR code linking to this page">'
+        '<div class="qr-side">'
+        '<p class="note">Scan to open this page on a phone, or take the code for '
+        'your poster, slides or handout.</p>'
+        '<div class="actions">'
+        f'<button class="btn btn-primary" type="button" data-qr-copy="{rel}/{esc(pid)}.png">'
+        'Copy image</button>'
+        f'<a class="btn" href="{rel}/{esc(pid)}.svg" download>SVG (print)</a>'
+        f'<a class="btn" href="{rel}/{esc(pid)}.png" download>PNG</a>'
+        '</div>'
+        f'<p class="url">{esc(url)}</p>'
+        '</div></div></section>'
+    )
+
+
 def fact(text: str, label: str = "") -> str:
     """dateline 한 조각. 라벨은 저널 표기처럼 굵은 소형 텍스트로 앞에 붙는다."""
     return (f"<span>{f'<b>{esc(label)}</b> ' if label else ''}{esc(text)}</span>")
@@ -92,22 +117,6 @@ def fact(text: str, label: str = "") -> str:
 def joined(parts: list[str]) -> str:
     sep = '<span class="sep" aria-hidden="true">·</span>'
     return sep.join(parts)
-
-
-def size_chip(poster: dict) -> str:
-    """규격 칩 문구. 측정한 사실만 적는다.
-
-    알려진 규격에 맞지 않으면 규격 이름을 붙이지 않는다 — 실제 mm 는 포스터 아래에 따로 찍힌다.
-    이미지 포스터는 물리 크기를 모르므로 '비율' 이라고 밝힌다.
-    """
-    o = {"portrait": "portrait", "landscape": "landscape"}.get(poster.get("orientation"), "")
-    label = poster.get("size_label") or poster.get("size") or ""
-    kind = poster.get("kind")
-    if label and kind == "image":
-        return f"{label} aspect, {o}".strip(", ")
-    if label:
-        return f"{label} {o}".strip()
-    return o
 
 
 def person_display(p: dict) -> tuple[str, str]:
@@ -141,7 +150,7 @@ def ordered(cfg: dict) -> list[dict]:
 
 
 # ---------------------------------------------------------------- index
-def build_index(cfg: dict, people: dict[str, dict], out: Path) -> None:
+def build_index(cfg: dict, people: dict[str, dict], out: Path, has_index_qr: bool = False) -> None:
     site = cfg.get("site", {})
     title = site.get("title") or site.get("lab_short") or "Posters"
     lab = site.get("lab_name") or site.get("lab_short") or ""
@@ -248,6 +257,7 @@ def build_index(cfg: dict, people: dict[str, dict], out: Path) -> None:
     {'<div class="grid">' + "".join(cards) + '</div>' if cards
      else '<p class="empty-note">No participants registered yet.</p>'}
   </section>
+  {qr_block("index", (cfg.get("deploy", {}) or {}).get("url", "") or "", "qr", has_index_qr)}
 </div></main>
 
 <footer class="foot"><div class="wrap">
@@ -302,20 +312,6 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict) -> No
                  '<p>Open the original file below.</p></div>')
     else:
         plate = '<div class="plate empty"><p>The poster file has not been uploaded yet.</p></div>'
-
-    # 캡션 — 저널 그림 설명처럼 규격·해상도·용량을 한 줄로
-    cap = []
-    spec = size_chip(poster)
-    if spec:
-        cap.append(spec)
-    if poster.get("w_mm") and poster.get("h_mm"):
-        cap.append(f'{poster["w_mm"]:.0f} × {poster["h_mm"]:.0f} mm')
-    elif poster.get("w_px") and poster.get("h_px"):
-        cap.append(f'{poster["w_px"]} × {poster["h_px"]} px')
-    if poster.get("bytes"):
-        cap.append(human_size(poster["bytes"]))
-    caption = ("<p class=\"caption\"><b>Poster.</b> " + esc(" · ".join(cap)) + ". "
-               "Tap or click to enlarge; the original file is linked below.</p>") if cap else ""
 
     pactions = []
     if file_rel:
@@ -374,6 +370,10 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict) -> No
         sections.append('<section class="section"><h2>Contact</h2>'
                         f'<div class="actions">{"".join(cbtns)}</div></section>')
 
+    base = (cfg.get("deploy", {}) or {}).get("url", "").rstrip("/")
+    sections.append(qr_block(pid, f"{base}/p/{pid}.html" if base else f"p/{pid}.html",
+                             "../qr", bool(nav.get("qr"))))
+
     def step(target, label, aria):
         if not target:
             return f'<span class="step" aria-disabled="true" aria-label="{aria}">{label}</span>'
@@ -410,7 +410,6 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict) -> No
 
     <div class="figure">
       {plate}
-      {caption}
       <div class="actions">{"".join(pactions)}</div>
     </div>
   </div></article>
@@ -557,6 +556,15 @@ def main() -> int:
     if dist.exists():
         shutil.rmtree(dist)
     (dist / "assets").mkdir(parents=True, exist_ok=True)
+    qr_src = pth["root"] / "qr"
+    qr_have: set[str] = set()
+    if qr_src.is_dir():
+        (dist / "qr").mkdir(parents=True, exist_ok=True)
+        for f in qr_src.iterdir():
+            if f.suffix.lower() in (".svg", ".png") and f.is_file():
+                shutil.copy2(f, dist / "qr" / f.name)
+                qr_have.add(f.stem)
+
     shutil.copy2(TPL / "site.css", dist / "assets" / "site.css")
     shutil.copy2(TPL / "site.js", dist / "assets" / "site.js")
     (dist / ".nojekyll").write_text("", encoding="utf-8")
@@ -570,13 +578,14 @@ def main() -> int:
         notes += stage_assets(pth, p, dist, not a.no_preview, a.long_edge)
         build_person(cfg, p, dist, "../files",
                      {"prev": seq[i - 1] if i > 0 else None,
-                      "next": seq[i + 1] if i + 1 < len(seq) else None})
+                      "next": seq[i + 1] if i + 1 < len(seq) else None,
+                      "qr": pid in qr_have})
     for pid, p in live.items():            # 명부에 없는 제출자도 페이지는 만든다
         if pid not in seq:
             notes += stage_assets(pth, p, dist, not a.no_preview, a.long_edge)
-            build_person(cfg, p, dist, "../files", {})
+            build_person(cfg, p, dist, "../files", {"qr": pid in qr_have})
 
-    build_index(cfg, live, dist)
+    build_index(cfg, live, dist, "index" in qr_have)
 
     state, days = window_state(cfg)
     total = len(cfg.get("participants", []))

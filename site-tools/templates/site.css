@@ -9,19 +9,20 @@
    No purple anywhere. */
 
 :root {
-  --paper: #f8f8f6;
+  --paper: #ffffff;           /* 저널은 흰 종이에 찍는다. 지면 전체가 흰색이고 구획은 선이 한다 */
   --surface: #ffffff;
-  --ink: #16181c;
-  --ink-2: #454a52;
-  --ink-3: #666c74;
-  --rule: #e3e3df;
-  --rule-2: #cfcfc9;
-  --accent: #3e7099;          /* 링크 — 흰 배경 위 5.27:1 */
-  --accent-fill: #3e7099;     /* 채움 버튼 배경 */
-  --accent-fill-ink: #ffffff; /* 그 위 글자 — 5.27:1 */
-  --spot: #c22f27;
-  --warn-bg: #fdf6e7;
-  --warn-ink: #7a5310;
+  --tint: #f4f4f2;            /* 도판 바탕·빈 자리에만 쓰는 아주 옅은 중립 */
+  --ink: #101114;
+  --ink-2: #3f444b;
+  --ink-3: #6b7076;
+  --rule: #e2e2df;
+  --rule-2: #c6c6c2;
+  --accent: #1f4e79;          /* 링크 — 깊은 잉크 블루, 8.66:1 */
+  --accent-fill: #1a1c20;     /* 채움 버튼은 근검정. 포화된 파란 CTA 는 지면이 아니라 앱이다 */
+  --accent-fill-ink: #ffffff; /* 17.1:1 */
+  --spot: #8f2a22;            /* 인쇄 잉크에 가까운 딥 레드, 8.33:1 */
+  --warn-bg: #f4f4f2;
+  --warn-ink: #3f444b;
   --serif: "New York", "Iowan Old Style", Charter, Palatino, "Palatino Linotype",
     Georgia, "Times New Roman", "Apple SD Gothic Neo", "Noto Serif KR", serif;
   --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue",
@@ -32,20 +33,21 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #0e0f11;
-    --surface: #17181b;
-    --ink: #f2f2f0;
-    --ink-2: #c9cbd0;
-    --ink-3: #93989f;
+    --paper: #101114;
+    --surface: #16171a;
+    --tint: #1c1e22;
+    --ink: #f4f4f2;
+    --ink-2: #c8ccd2;
+    --ink-3: #8a9099;
     --rule: #2a2c30;
     --rule-2: #3a3d43;
-    --accent: #7fb0de;          /* 어두운 바탕 위 8.2:1 */
-    /* 다크에서 밝은 파랑 위에 흰 글자는 2.2:1 로 무너진다. 밝은 버튼 + 어두운 글자로 뒤집는다. */
-    --accent-fill: #7fb0de;
-    --accent-fill-ink: #0e0f11;
-    --spot: #e8615a;
-    --warn-bg: #2b2415;
-    --warn-ink: #f0cf92;
+    --accent: #8fb4d6;          /* 8.69:1 */
+    /* 라이트의 근검정 버튼을 그대로 뒤집는다 — 밝은 채움 + 어두운 글자 */
+    --accent-fill: #e8e8e6;
+    --accent-fill-ink: #101114;
+    --spot: #d9736a;            /* 5.64:1 */
+    --warn-bg: #1c1e22;
+    --warn-ink: #c8ccd2;
   }
 }
 
@@ -73,13 +75,13 @@ a:hover { text-decoration: underline; text-underline-offset: 2px; }
 
 .banner {
   background: var(--warn-bg); color: var(--warn-ink);
-  padding: 9px 24px; font-size: 13.5px; font-weight: 500; text-align: center;
-  border-bottom: 1px solid var(--rule);
+  padding: 8px 24px; font-size: 12.5px; font-weight: 600; text-align: center;
+  letter-spacing: .04em; border-bottom: 1px solid var(--rule);
 }
 .banner[hidden] { display: none; }
 
 /* ---------------------------------------------------------------- masthead */
-.masthead { border-top: 3px solid var(--spot); background: var(--surface); border-bottom: 1px solid var(--rule); }
+.masthead { border-top: 2px solid var(--spot); background: var(--surface); border-bottom: 1px solid var(--rule); }
 .masthead .wrap { padding-top: 34px; padding-bottom: 30px; }
 .imprint {
   margin: 0 0 14px; font-size: 11.5px; font-weight: 600; letter-spacing: .13em;
@@ -125,7 +127,7 @@ a:hover { text-decoration: underline; text-underline-offset: 2px; }
 
 .card { display: flex; flex-direction: column; color: inherit; text-decoration: none; }
 .thumb {
-  height: 178px; background: var(--surface); border: 1px solid var(--rule); overflow: hidden;
+  height: 178px; background: var(--tint); border: 1px solid var(--rule); overflow: hidden;
 }
 a.card:hover .thumb { border-color: var(--accent); }
 a.card:hover .card-title { text-decoration: underline; text-underline-offset: 2px; }
@@ -193,7 +195,7 @@ a.card:hover .card-title { text-decoration: underline; text-underline-offset: 2p
 /* poster shown as a journal figure: plate, then caption */
 .figure { margin: 30px 0 0; }
 .plate {
-  display: block; width: 100%; padding: 0; border: 1px solid var(--rule-2); background: var(--surface);
+  display: block; width: 100%; padding: 0; border: 1px solid var(--rule-2); background: var(--tint);
   aspect-ratio: var(--poster-ratio, 841 / 1189);
   max-width: calc(min(76vh, 860px) * var(--poster-ar, 0.7074));
   margin-inline: auto; overflow: hidden; cursor: zoom-in; position: relative;
@@ -210,10 +212,6 @@ a.card:hover .card-title { text-decoration: underline; text-underline-offset: 2p
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 6px; min-height: 180px; padding: 26px; text-align: center; color: var(--ink-3); font-size: 14px;
 }
-.caption {
-  margin: 12px auto 0; max-width: 78ch; font-size: 13.5px; line-height: 1.55; color: var(--ink-2);
-}
-.caption b { font-weight: 700; color: var(--ink); }
 .figure .actions { justify-content: flex-start; margin-top: 16px; }
 
 /* ---------------------------------------------------------------- lists */
@@ -228,6 +226,17 @@ a.card:hover .card-title { text-decoration: underline; text-underline-offset: 2p
 .item .note { margin: 0; font-size: 14px; color: var(--ink-2); max-width: var(--measure); }
 .item .meta { margin: 3px 0 0; font-size: 12px; color: var(--ink-3); letter-spacing: .04em; text-transform: uppercase; }
 .item .dl { flex: none; margin-left: auto; }
+
+/* QR — 발표자가 자기 코드를 가져가는 자리 */
+.qr-block { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+.qr-block img.qr {
+  width: 132px; height: 132px; flex: none;
+  border: 1px solid var(--rule); background: #fff; padding: 6px;
+}
+.qr-side { flex: 1; min-width: 220px; }
+.qr-side .note { margin: 0 0 12px; font-size: 14px; color: var(--ink-2); max-width: 56ch; }
+.qr-side .actions { margin: 0; gap: 8px; }
+.qr-side .url { margin: 12px 0 0; font-size: 12px; color: var(--ink-3); word-break: break-all; }
 
 .abstract { font-size: 15.5px; line-height: 1.7; color: var(--ink-2); max-width: var(--measure); margin: 0; }
 

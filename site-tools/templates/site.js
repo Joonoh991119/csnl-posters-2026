@@ -3,7 +3,8 @@
    2) announce the publication window in a banner
    3) copy the address
    4) enlarge the poster in place
-   5) move between posters with the arrow keys
+   5) copy the QR image to the clipboard
+   6) move between posters with the arrow keys
    With JavaScript off, the poster, supplementary files and references all still work. */
 (function () {
   "use strict";
@@ -141,7 +142,35 @@
     });
   }
 
-  // ------------------------------------------------------------ 5. arrow navigation
+  // ------------------------------------------------------------ 5. copy the QR image
+  // 발표자가 슬라이드나 핸드아웃에 바로 붙여 넣을 수 있어야 한다.
+  function qrCopy() {
+    document.addEventListener("click", function (ev) {
+      var btn = ev.target.closest("[data-qr-copy]");
+      if (!btn) return;
+      ev.preventDefault();
+      var src = btn.getAttribute("data-qr-copy");
+      var label = btn.getAttribute("data-label") || btn.textContent;
+      btn.setAttribute("data-label", label);
+      var done = function (text) {
+        btn.textContent = text;
+        setTimeout(function () { btn.textContent = label; }, 1800);
+      };
+      if (!(navigator.clipboard && window.ClipboardItem)) {
+        window.open(src, "_blank");           // 클립보드를 못 쓰면 이미지를 열어 준다
+        done("Opened");
+        return;
+      }
+      fetch(src).then(function (r) { return r.blob(); }).then(function (blob) {
+        return navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+      }).then(function () { done("Copied"); }).catch(function () {
+        window.open(src, "_blank");
+        done("Opened");
+      });
+    });
+  }
+
+  // ------------------------------------------------------------ 6. arrow navigation
   function arrowNav() {
     var prev = document.querySelector('.stepper a[aria-label^="Previous"]');
     var next = document.querySelector('.stepper a[aria-label^="Next"]');
@@ -155,7 +184,7 @@
   }
 
   function boot() {
-    assembleEmail(); windowBanner(); copyButtons(); lightbox(); arrowNav();
+    assembleEmail(); windowBanner(); copyButtons(); lightbox(); qrCopy(); arrowNav();
   }
 
   if (document.readyState === "loading") {
