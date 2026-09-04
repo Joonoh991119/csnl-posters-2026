@@ -137,6 +137,11 @@ a.card:hover .card-title { text-decoration: underline; text-underline-offset: 2p
 }
 .card-body { padding: 12px 0 0; display: flex; flex-direction: column; gap: 5px; flex: 1; }
 .card-top { display: flex; align-items: baseline; gap: 9px; }
+/* 저자 전원. 발표자만 굵게 — 저널이 발표 저자를 표시하는 방식이다. */
+.card-authors { margin: 4px 0 0; font-size: 13.5px; line-height: 1.45; color: var(--ink-2); }
+.card-authors b { font-weight: 700; color: var(--ink); }
+.byline b { font-weight: 700; }
+.btn .ico { flex: none; margin-right: -1px; }
 .pno {
   flex: none; font-family: var(--sans); font-size: 12px; font-weight: 700;
   letter-spacing: .06em; color: var(--spot); text-transform: uppercase;
@@ -150,6 +155,7 @@ a.card:hover .card-title { text-decoration: underline; text-underline-offset: 2p
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
 }
 .card.pending .card-title { font-family: var(--sans); font-size: 14px; color: var(--ink-3); }
+.card.pending .card-name { font-size: 15px; }
 .card-foot { margin-top: auto; padding-top: 9px; font-size: 13px; color: var(--ink-3); display: flex; flex-wrap: wrap; gap: 3px 12px; }
 
 /* ---------------------------------------------------------------- poster page */

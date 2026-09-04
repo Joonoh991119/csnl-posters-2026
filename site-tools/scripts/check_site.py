@@ -46,8 +46,9 @@ def main() -> int:
     if state == "closed":
         warns.append(f"게시기간이 이미 {days}일 지났다 — /poster-site:takedown 을 쓸 시점")
 
-    if not (cfg.get("site", {}) or {}).get("members_url"):
-        warns.append("members_url 이 비어 있다 — 메인의 Lab members 버튼이 안 나온다")
+    site = cfg.get("site", {}) or {}
+    if not (site.get("lab_home_url") or site.get("members_url")):
+        warns.append("lab_home_url 이 비어 있다 — 메인의 Lab homepage 버튼이 안 나온다")
     if not cfg.get("participants"):
         errors.append("참가자 명부가 비어 있다")
 

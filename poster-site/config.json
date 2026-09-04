@@ -4,8 +4,7 @@
     "title": "CSNL Posters 2026",
     "lab_name": "Cognitive and Systems Neuroscience Laboratory · Seoul National University",
     "lab_short": "CSNL",
-    "lede": "Posters presented at the 2026 autumn meetings, with the supplementary material, reference lists and contact details that do not fit on a single sheet.",
-    "members_url": "https://www.snu-csnl.com/team-3",
+    "lede": "Posters to be presented at CBrain 2026 and KSBNS 2026, with additional material and contact details for each.",
     "lab_home_url": "https://www.snu-csnl.com/",
     "contact_note": "",
     "locale": "en",
@@ -37,7 +36,7 @@
       "initials": "BYL",
       "name": "이보연",
       "name_en": "Boyun Lee",
-      "poster_no": "P-427",
+      "poster_no": "P2",
       "order": 2
     },
     {

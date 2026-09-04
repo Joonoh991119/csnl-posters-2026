@@ -57,6 +57,33 @@ def btn(label: str, href: str, primary=False, external=False, extra="") -> str:
     return f'<a class="{cls}" href="{esc(href)}"{tgt} {extra}>{esc(label)}{ext}</a>'
 
 
+HOME_ICON = ('<svg class="ico" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" '
+             'fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" '
+             'stroke-linejoin="round"><path d="M2 6.6 8 2l6 4.6"/>'
+             '<path d="M3.4 7.6V13a.6.6 0 0 0 .6.6h8a.6.6 0 0 0 .6-.6V7.6"/>'
+             '<path d="M6.4 13.6V9.4h3.2v4.2"/></svg>')
+
+
+def authors_html(p: dict) -> str:
+    """저자 전원을 적고, 발표자만 굵게. 저널이 발표 저자를 표시하는 방식 그대로다.
+
+    authors 가 비어 있으면 그 사람 이름만 남는다 — 없는 저자를 지어내지 않는다.
+    """
+    line = (p.get("authors") or "").strip()
+    if not line:
+        return esc(p.get("name_en") or p.get("name") or "")
+    who = (p.get("name_en") or "").strip()
+    out = []
+    for token in [x.strip() for x in line.split(",")]:
+        if not token:
+            continue
+        if who and token.casefold() == who.casefold():
+            out.append(f"<b>{esc(token)}</b>")
+        else:
+            out.append(esc(token))
+    return ", ".join(out)
+
+
 def fact(text: str, label: str = "") -> str:
     """dateline 한 조각. 라벨은 저널 표기처럼 굵은 소형 텍스트로 앞에 붙는다."""
     return (f"<span>{f'<b>{esc(label)}</b> ' if label else ''}{esc(text)}</span>")
@@ -151,16 +178,20 @@ def build_index(cfg: dict, people: dict[str, dict], out: Path) -> None:
         ttl = poster.get("title") or ""
         cards.append(
             f'<a class="card" href="p/{esc(pid)}.html">{thumb_html}'
-            f'<div class="card-body"><div class="card-top"><span class="pno">{pno}</span>{name_block}</div>'
+            # 발표자 이름은 아래 저자 줄이 담당한다 — 상단은 번호만 둔다
+            f'<div class="card-body"><div class="card-top"><span class="pno">{pno}</span></div>'
             + (f'<p class="card-title">{esc(ttl)}</p>' if ttl else "")
+            + f'<p class="card-authors">{authors_html(p)}</p>'
             + f'<div class="card-foot">{"".join(f"<span>{x}</span>" for x in foot)}</div></div></a>'
         )
 
+    home = site.get("lab_home_url") or site.get("members_url") or ""
     links = []
-    if site.get("members_url"):
-        links.append(btn("Lab members", site["members_url"], primary=True, external=True))
-    if site.get("lab_home_url"):
-        links.append(btn("Lab home", site["lab_home_url"], external=True))
+    if home:
+        links.append(
+            f'<a class="btn btn-primary" href="{esc(home)}" target="_blank" rel="noopener">'
+            f'{HOME_ICON}Lab homepage <span class="ext" aria-hidden="true">↗</span></a>'
+        )
 
     facts = []
     confs = sorted({conf_label(p) for p in people.values() if conf_label(p)})
@@ -352,7 +383,7 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict) -> No
     <p class="eyebrow">{esc(p.get('poster_no', ''))}{' · ' if p.get('poster_no') and conf_label(p) else ''}{esc(conf_label(p))}</p>
     <h1>{esc(title)}</h1>
     {f'<p class="subtitle">{esc(poster.get("title_en"))}</p>' if poster.get("title_en") else ""}
-    <p class="byline">{esc(p.get("authors") or name)}</p>
+    <p class="byline">{authors_html(p)}</p>
     {f'<p class="affil">{esc(p.get("affiliation"))}</p>' if p.get("affiliation") else ""}
     {f'<p class="dateline">{joined(line)}</p>' if line else ""}
 
