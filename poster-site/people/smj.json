@@ -1,0 +1,40 @@
+{
+  "id": "smj",
+  "initials": "SMJ",
+  "name": "정새미",
+  "name_en": "Saemi Jung",
+  "poster_no": "P3",
+  "affiliation": "Department of Brain and Cognitive Sciences, Seoul National University, Seoul, Republic of Korea",
+  "authors": "Saemi Jung, Juhyung Ryu, Sang-Hun Lee",
+  "abstract": "",
+  "conference": {
+    "name": "The 29th Annual Meeting of the Korean Society for Brain and Neural Sciences",
+    "short": "K-Brain 2026",
+    "date": "2026-09-06",
+    "date_end": "2026-09-08",
+    "session": "Poster No. P-430",
+    "city": "Daejeon, Korea",
+    "venue": "Daejeon Convention Center"
+  },
+  "poster": {
+    "title": "Human gaze preferentially samples local concentric structure during visual search",
+    "title_en": "",
+    "file": "poster.pdf",
+    "kind": "pdf",
+    "show_download": false,
+    "orientation": "landscape",
+    "w_mm": 1188.9,
+    "h_mm": 840.7,
+    "size": "A0",
+    "size_label": "A0"
+  },
+  "supplementary": [],
+  "references": [],
+  "contact": {
+    "email": {
+      "user": "jsaemi22",
+      "domain": "gmail.com"
+    }
+  },
+  "updated": "2026-09-04"
+}

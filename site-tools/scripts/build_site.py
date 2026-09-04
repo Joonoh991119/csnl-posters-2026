@@ -331,7 +331,8 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict, ver: 
     if file_rel:
         kind = "PDF" if poster["file"].lower().endswith(".pdf") else "image"
         pactions.append(btn(f"Open original ({kind})", file_rel, primary=True, external=True))
-        pactions.append(btn("Download", file_rel, extra="download"))
+        if poster.get("show_download", True):
+            pactions.append(btn("Download", file_rel, extra="download"))
 
     sections = []
     if p.get("abstract"):
