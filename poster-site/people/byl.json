@@ -1,0 +1,111 @@
+{
+  "id": "bolee0755",
+  "initials": "BYL",
+  "name": "이보연",
+  "name_en": "Boyun Lee",
+  "poster_no": "P-427",
+  "affiliation": "Department of Brain and Cognitive Sciences, Seoul National University",
+  "authors": "Boyun Lee, Sang-Hun Lee",
+  "abstract": "",
+  "conference": {
+    "name": "KSBNS 2026",
+    "short": "KSBNS 2026",
+    "date": "2026-09-06",
+    "date_end": "2026-09-08",
+    "session": "Poster Session 3",
+    "city": "Daejeon",
+    "venue": "DCC"
+  },
+  "poster": {
+    "title": "Observer-specific orientation biases reveal distinct uncertainty-dependent modulation",
+    "title_en": "",
+    "file": "Poster_KSBNS_BYL5.pdf",
+    "kind": "pdf",
+    "orientation": "portrait",
+    "w_px": 3304,
+    "h_px": 2107,
+    "size": "A0",
+    "size_label": "A0"
+  },
+  "supplementary": [],
+
+  "references": [
+    {
+      "text": "Wei, X., & Stocker, A. A. (2015). A Bayesian observer model constrained by efficient coding can explain ‘anti-Bayesian’ percepts. Proceedings of the National Academy of Sciences, 112(5), 1448-1453.",
+      "doi": "",
+      "url": ""
+    },
+    {
+      "text": "Girshick, A. R., Landy, M. S., & Simoncelli, E. P. (2011). Cardinal rules: Visual orientation perception reflects knowledge of environmental statistics. Nature Neuroscience, 14(7), 926–932.",
+      "doi": "",
+      "url": ""
+    },
+    {
+      "text": "Tomassini, A., Morgan, M. J., & Solomon, J. A. (2010). Orientation uncertainty reduces perceived obliquity. Vision Research, 50(5), 541–547.",
+      "doi": "",
+      "url": ""
+    },
+    {
+      "text": "Gu, H., Lee, J., Kim, S., Lim, J., Lee, H.-J., Lee, H., Choe, M. J., Yoo, D.-G., Ryu, J. H. J., Lim, S., & Lee, S.-H. (2025). Attractor dynamics of working memory explain a concurrent evolution of stimulus-specific and decision-consistent biases in visual estimation. Neuron, 113(20), 3476–3490.e9.",
+      "doi": "",
+      "url": ""
+    },
+    {
+      "text": "Ganguli, D., & Simoncelli, E. P. (2014). Efficient sensory encoding and Bayesian inference with heterogeneous neural populations. Neural Computation, 26(10), 2103–2134.",
+      "doi": "",
+      "url": ""
+    },
+    {
+      "text": "Ma WJ & Jazayeri M (2014). Neural coding of uncertainty and probability. Annu Rev Neurosci 37:205–220.",
+      "doi": "",
+      "url": ""
+    },
+    {
+      "text": "de Gardelle, V., Kouider, S., & Sackur, J. (2010). An oblique illusion modulated by visibility: Non-monotonic sensory integration in orientation processing. Journal of Vision, 10(10), 6.",
+      "doi": "",
+      "url": ""
+    },
+    {
+      "text": "Campbell, F. W., Kulikowski, J. J., & Levinson, J. (1966). The effect of orientation on the visual resolution of gratings. The Journal of Physiology, 187(2), 427–436.",
+      "doi": "",
+      "url": ""
+    },
+    {
+      "text": "Stocker, A. A., & Simoncelli, E. P. (2006). Noise characteristics and prior expectations in human visual speed perception. Nature Neuroscience, 9(4), 578–585.",
+      "doi": "",
+      "url": ""
+    },
+    {
+      "text": "Pratte, M. S., Park, Y. E., Rademaker, R. L., & Tong, F. (2017). Accounting for stimulus-specific variation in precision reveals a discrete capacity limit in visual working memory. Journal of Experimental Psychology: Human Perception and Performance, 43(1), 6–17.",
+      "doi": "",
+      "url": ""
+    },
+    {
+      "text": "Noel, J.-P., Zhang, L.-Q., Stocker, A. A., & Angelaki, D. E. (2021). Individuals with autism spectrum disorder have altered visual encoding capacity. PLoS Biology, 19(5), e3001215.",
+      "doi": "",
+      "url": ""
+    },
+    {
+      "text": "Fritsche, M., Mostert, P., & de Lange, F. P. (2017). Opposite effects of recent history on perception and decision. Current Biology, 27(4), 590–595.",
+      "doi": "",
+      "url": ""
+    },
+    {
+      "text": "Zhang, L.-Q., Mao, J., Aguirre, G. K., & Stocker, A. A. (2025). The tilt illusion arises from an efficient reallocation of neural coding resources at the contextual boundary. Proceedings of the National Academy of Sciences, 122(17), e2421565122.",
+      "doi": "",
+      "url": ""
+    },
+    {
+      "text": "Wei, X.-X., & Stocker, A. A. (2017). Lawful relation between perceptual bias and discriminability. Proceedings of the National Academy of Sciences, 114(38), 10244–10249.",
+      "doi": "",
+      "url": ""
+    }
+  ],
+  "contact": {
+    "email": {
+      "user": "bolee0755",
+      "domain": "gmail.com"
+    }
+  },
+  "updated": "2026-09-04"
+}
