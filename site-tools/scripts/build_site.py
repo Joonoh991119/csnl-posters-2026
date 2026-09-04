@@ -12,6 +12,7 @@ config.json + people/*.json + assets/ → dist/ (순수 HTML/CSS/JS, 빌드 도�
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import shutil
 import subprocess
@@ -25,6 +26,18 @@ from sitelib import (  # noqa: E402
 )
 
 TPL = Path(__file__).resolve().parent.parent / "templates"
+
+
+def asset_tag(path: Path) -> str:
+    """내용 해시. 스타일이 바뀌면 URL 이 바뀌어야 한다.
+
+    assets/site.css 는 경로가 고정이라, 학회 중에 디자인을 고쳐도 이미 페이지를 열었던
+    사람은 옛 스타일을 계속 본다. 해시를 붙여 그 상황을 없앤다.
+    """
+    try:
+        return hashlib.sha256(path.read_bytes()).hexdigest()[:8]
+    except OSError:
+        return "0"
 
 
 # ---------------------------------------------------------------- 조각
@@ -150,7 +163,8 @@ def ordered(cfg: dict) -> list[dict]:
 
 
 # ---------------------------------------------------------------- index
-def build_index(cfg: dict, people: dict[str, dict], out: Path, has_index_qr: bool = False) -> None:
+def build_index(cfg: dict, people: dict[str, dict], out: Path, has_index_qr: bool = False,
+                ver: str = "") -> None:
     site = cfg.get("site", {})
     title = site.get("title") or site.get("lab_short") or "Posters"
     lab = site.get("lab_name") or site.get("lab_short") or ""
@@ -236,7 +250,7 @@ def build_index(cfg: dict, people: dict[str, dict], out: Path, has_index_qr: boo
     html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
-  {head(title, f"{lab} — conference posters", "assets/site.css", site.get("noindex", True),
+  {head(title, f"{lab} — conference posters", f"assets/site.css?v={ver}", site.get("noindex", True),
         {"title": title, "desc": f"{lab} — {total} conference posters"})}
 </head>
 <body>
@@ -269,7 +283,7 @@ def build_index(cfg: dict, people: dict[str, dict], out: Path, has_index_qr: boo
 </div></footer>
 
 <script>window.__SITE__ = {json.dumps({"window": cfg.get("window", {})}, ensure_ascii=False)};</script>
-<script src="assets/site.js"></script>
+<script src="assets/site.js?v={ver}"></script>
 </body>
 </html>
 """
@@ -277,7 +291,7 @@ def build_index(cfg: dict, people: dict[str, dict], out: Path, has_index_qr: boo
 
 
 # ---------------------------------------------------------------- person
-def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict) -> None:
+def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict, ver: str = "") -> None:
     site = cfg.get("site", {})
     pid = p["id"]
     name, sub = person_display(p)
@@ -382,7 +396,7 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict) -> No
     html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
-  {head(f"{p.get('poster_no', '')} {name} — {title}".strip(), title, "../assets/site.css",
+  {head(f"{p.get('poster_no', '')} {name} — {title}".strip(), title, f"../assets/site.css?v={ver}",
         site.get("noindex", True),
         {"title": title, "desc": f"{name} — {conf_label(p)}", "image": prev_rel})}
 </head>
@@ -432,7 +446,7 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict) -> No
 </div>
 
 <script>window.__SITE__ = {json.dumps({"window": cfg.get("window", {})}, ensure_ascii=False)};</script>
-<script src="../assets/site.js"></script>
+<script src="../assets/site.js?v={ver}"></script>
 </body>
 </html>
 """
@@ -567,6 +581,7 @@ def main() -> int:
 
     shutil.copy2(TPL / "site.css", dist / "assets" / "site.css")
     shutil.copy2(TPL / "site.js", dist / "assets" / "site.js")
+    ver = asset_tag(TPL / "site.css") + asset_tag(TPL / "site.js")[:4]
     (dist / ".nojekyll").write_text("", encoding="utf-8")
 
     live = {k: v for k, v in people.items() if is_live(v)}
@@ -579,17 +594,17 @@ def main() -> int:
         build_person(cfg, p, dist, "../files",
                      {"prev": seq[i - 1] if i > 0 else None,
                       "next": seq[i + 1] if i + 1 < len(seq) else None,
-                      "qr": pid in qr_have})
+                      "qr": pid in qr_have}, ver)
     for pid, p in live.items():            # 명부에 없는 제출자도 페이지는 만든다
         if pid not in seq:
             notes += stage_assets(pth, p, dist, not a.no_preview, a.long_edge)
-            build_person(cfg, p, dist, "../files", {"qr": pid in qr_have})
+            build_person(cfg, p, dist, "../files", {"qr": pid in qr_have}, ver)
 
-    build_index(cfg, live, dist, "index" in qr_have)
+    build_index(cfg, live, dist, "index" in qr_have, ver)
 
     state, days = window_state(cfg)
     total = len(cfg.get("participants", []))
-    print(f"빌드 완료 → {dist}")
+    print(f"빌드 완료 → {dist}  (자산 버전 {ver})")
     print(f"  참가자 {len(live)} / {total} 공개" + (f" (보류 {len(held)}명: {', '.join(held)})" if held else ""))
     label = {"before": "게시 전", "open": "게시 중", "closed": "게시 종료", "unset": "게시기간 미설정"}[state]
     print(f"  게시 상태: {label}" + (f" (D-{days})" if state == "open" and days is not None else ""))
