@@ -41,7 +41,7 @@
     },
     {
       "text": "Lee H, Lim J & Lee S-H (2025). Belief updating in decision-variable space. iScience 28(7):112844.",
-      "doi": "",
+      "doi": "10.1016/j.isci.2025.112844",
       "url": ""
     },
     {
@@ -89,5 +89,9 @@
       "file": "supplementary.html",
       "notice": "AI-summarised supplementary material prepared from the authors' analysis notes. It is not a manuscript and has not been peer reviewed."
     }
-  ]
+  ],
+  "note": {
+    "title": "Adapted from",
+    "html": "The experiment was adapted from <a href=\"https://doi.org/10.1152/jn.01201.2011\" target=\"_blank\" rel=\"noopener\">Sohn &amp; Lee (2013), <em>J Neurophysiol</em> 109(2):344–362</a> and <a href=\"https://doi.org/10.1016/j.isci.2025.112844\" target=\"_blank\" rel=\"noopener\">Lee, Lim &amp; Lee (2025), <em>iScience</em> 28(7):112844</a> — the latter is reference 3 below."
+  }
 }

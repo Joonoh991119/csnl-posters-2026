@@ -125,6 +125,16 @@ def qr_block(pid: str, url: str, rel: str, has: bool) -> str:
     )
 
 
+_DROP_BLOCK = re.compile(r"<(script|style)\b[^>]*>.*?</\1\s*>", re.S | re.I)
+_DROP_ON = re.compile(r"\son[a-z]+\s*=\s*(\"[^\"]*\"|'[^']*'|[^\s>]+)", re.I)
+
+
+def safe_html(s: str) -> str:
+    """사람이 손으로 쓰는 짧은 문단. 링크와 강조는 허용하고 스크립트는 뺀다."""
+    s = _DROP_BLOCK.sub("", s or "")
+    return _DROP_ON.sub("", s).strip()
+
+
 def fact(text: str, label: str = "") -> str:
     """dateline 한 조각. 라벨은 저널 표기처럼 굵은 소형 텍스트로 앞에 붙는다."""
     return (f"<span>{f'<b>{esc(label)}</b> ' if label else ''}{esc(text)}</span>")
@@ -341,6 +351,11 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict, ver: 
         pactions.append(btn("Download", file_rel, extra="download"))
 
     sections = []
+    note = p.get("note") or {}
+    if note.get("html") or note.get("text"):
+        body_html = safe_html(note.get("html") or esc(note.get("text", "")))
+        sections.append(f'<section class="section"><h2>{esc(note.get("title") or "Note")}</h2>'
+                        f'<p class="abstract">{body_html}</p></section>')
     if p.get("abstract"):
         sections.append('<section class="section"><h2>Abstract</h2>'
                         f'<p class="abstract">{esc(p["abstract"])}</p></section>')
