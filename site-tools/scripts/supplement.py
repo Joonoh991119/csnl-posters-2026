@@ -138,7 +138,7 @@ def render(src: str, img_dir: Path, img_rel: str, asset_dir: Path | None = None,
     body = HEADING.sub(head, body)
 
     # ---- 링크 정리 ----
-    dead_anchor, dead_file, fixed = [], [], 0
+    dead_anchor, dead_file, taken_files, fixed = [], [], [], 0
     figure_names = list(saved.values())
 
     def link(mm):
@@ -160,13 +160,18 @@ def render(src: str, img_dir: Path, img_rel: str, asset_dir: Path | None = None,
             return f"<span>{text}</span>"
         if re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*:", href) or href.startswith("//"):
             return mm.group(0)                               # 외부 링크는 그대로
+        # 원본 옆에 실제로 있는 파일이면 사이트로 옮기고 링크를 살린다
+        f = (asset_dir / href) if asset_dir else None
+        if f and f.is_file():
+            dst = img_dir / Path(href).name
+            if not dst.exists():
+                dst.write_bytes(f.read_bytes())
+                taken_files.append(Path(href).name)
+            return f'<a{pre}href="{img_rel}/{Path(href).name}"{post}>{text}</a>'
         stem = Path(href).stem.lower()
-        for name in figure_names:                            # figures/FigureS4_x.png → 빼낸 파일
+        for name in figure_names:                            # base64 에서 빼낸 그림과 이름이 맞으면
             if stem in name.lower() or name.split(".")[0] in stem:
                 return f'<a{pre}href="{img_rel}/{name}"{post}>{text}</a>'
-        idx = re.search(r"figures?/[^/]*?s(\d+)", href, re.I)
-        if idx and saved.get(idx.group(1)):
-            return f'<a{pre}href="{img_rel}/{saved[idx.group(1)]}"{post}>{text}</a>'
         dead_file.append(href)
         return f"<span>{text}</span>"                        # 없는 파일로 보내지 않는다
 
@@ -192,9 +197,7 @@ def render(src: str, img_dir: Path, img_rel: str, asset_dir: Path | None = None,
             else:
                 missing_media.append(s)
         if not keep:
-            return ('<p class="missing">이 온라인 사본에는 포함되지 않았습니다.</p>'
-                    if False else
-                    '<p class="missing">Not included in this online copy.</p>')
+            return '<p class="missing">Not included in this online copy.</p>' 
         out = mm.group(0)
         for old, new in keep:
             out = out.replace(f'src="{old}"', f'src="{new}"')
@@ -217,7 +220,7 @@ def render(src: str, img_dir: Path, img_rel: str, asset_dir: Path | None = None,
             dst = img_dir / Path(href).name
             dst.write_bytes(f.read_bytes())
             return f'<img{pre}src="{img_rel}/{Path(href).name}"{post}>'
-        return f'<img{pre}src="{img_rel}/{Path(href).name}"{post}>' if False else mm.group(0)
+        return mm.group(0)
 
     body = LOCAL_IMG.sub(local_img, body)
 
@@ -228,6 +231,8 @@ def render(src: str, img_dir: Path, img_rel: str, asset_dir: Path | None = None,
                      flags=re.S | re.I)
     if wrapped != body:
         body = wrapped
+    if taken_files:
+        notes.append(f"본문이 가리키는 파일 {len(taken_files)}개를 사이트로 옮겼다")
     if fixed:
         notes.append(f"본문 안 목차 링크 {fixed}개가 지금 제목과 어긋나 있어 다시 이었다")
     if dead_anchor:

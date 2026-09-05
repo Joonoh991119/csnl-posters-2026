@@ -1,0 +1,25 @@
+subject,context,task,by_design,analysed,no_response
+Subject 1,Short,Reproduction,300,300,0
+Subject 1,Short,Scaling,300,299,1
+Subject 1,Long,Reproduction,300,299,1
+Subject 1,Long,Scaling,300,298,2
+Subject 2,Short,Reproduction,300,300,0
+Subject 2,Short,Scaling,300,300,0
+Subject 2,Long,Reproduction,300,300,0
+Subject 2,Long,Scaling,300,300,0
+Subject 3,Short,Reproduction,300,300,0
+Subject 3,Short,Scaling,300,300,0
+Subject 3,Long,Reproduction,300,299,1
+Subject 3,Long,Scaling,300,300,0
+Subject 4,Short,Reproduction,300,299,1
+Subject 4,Short,Scaling,300,300,0
+Subject 4,Long,Reproduction,300,299,1
+Subject 4,Long,Scaling,300,300,0
+Subject 5,Short,Reproduction,300,300,0
+Subject 5,Short,Scaling,300,299,1
+Subject 5,Long,Reproduction,300,297,3
+Subject 5,Long,Scaling,300,299,1
+Subject 6,Short,Reproduction,300,300,0
+Subject 6,Short,Scaling,300,300,0
+Subject 6,Long,Reproduction,300,300,0
+Subject 6,Long,Scaling,300,299,1
