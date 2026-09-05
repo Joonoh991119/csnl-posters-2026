@@ -63,6 +63,11 @@
       "text": "Jabar SB & Fougnie D (2022). Perception is rich and probabilistic. Sci Rep 12:13172.",
       "doi": "",
       "url": ""
+    },
+    {
+      "text": "Hahn M, Wang E & Wei X-X (2025). Identifiability of Bayesian models of cognition. bioRxiv 2025.06.25.661321.",
+      "doi": "",
+      "url": "https://doi.org/10.1101/2025.06.25.661321"
     }
   ],
   "contact": {
@@ -71,5 +76,18 @@
       "domain": "snu.ac.kr"
     }
   },
-  "updated": "2026-09-05"
+  "updated": "2026-09-05",
+  "pages": [
+    {
+      "kind": "abstract",
+      "title": "Poster abstract",
+      "file": "abstract.docx"
+    },
+    {
+      "kind": "supplementary",
+      "title": "Supplementary material",
+      "file": "supplementary.html",
+      "notice": "AI-summarised supplementary material prepared from the authors' analysis notes. It is not a manuscript and has not been peer reviewed."
+    }
+  ]
 }

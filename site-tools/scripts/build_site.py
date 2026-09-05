@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import re
 import json
 import shutil
 import subprocess
@@ -20,6 +21,8 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from docx_page import render as render_docx  # noqa: E402
+from supplement import render as render_supplement, strip_front_matter  # noqa: E402
 from sitelib import (  # noqa: E402
     esc, fmt_date_en, fmt_date_range, frame_vars, human_size, link_value, load_config, load_people,
     make_preview, paths, poster_geometry, window_state,
@@ -327,7 +330,11 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict, ver: 
     else:
         plate = '<div class="plate empty"><p>The poster file has not been uploaded yet.</p></div>'
 
+    specs = doc_specs(p)
     pactions = []
+    for s in specs:
+        if s["kind"] == "abstract":
+            pactions.append(btn(s.get("title") or "Abstract", f"{pid}-abstract.html"))
     if file_rel:
         kind = "PDF" if poster["file"].lower().endswith(".pdf") else "image"
         pactions.append(btn(f"Open original ({kind})", file_rel, primary=True, external=True))
@@ -338,8 +345,9 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict, ver: 
         sections.append('<section class="section"><h2>Abstract</h2>'
                         f'<p class="abstract">{esc(p["abstract"])}</p></section>')
 
+    page = next((s for s in specs if s["kind"] == "supplementary"), {})
     supp = [s for s in (p.get("supplementary") or []) if s.get("file")]
-    if supp:
+    if page or supp:
         items = []
         for s in supp:
             rel = f"{files_rel}/{pid}/{s['file']}"
@@ -353,8 +361,15 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict, ver: 
                 + f'<p class="meta">{esc(" · ".join(bits))}</p></div>'
                 f'<span class="dl">{btn("Open", rel, external=True)}</span></li>'
             )
-        sections.append('<section class="section"><h2>Supplementary</h2>'
-                        '<ul class="list">' + "".join(items) + "</ul></section>")
+        lead = ""
+        if page:
+            lead = ('<p class="supp-link">'
+                    + btn(page.get("title") or "Supplementary material",
+                          f"{pid}-supplementary.html", primary=True)
+                    + "</p>")
+        sections.append('<section class="section"><h2>Supplementary</h2>' + lead
+                        + ('<ul class="list">' + "".join(items) + "</ul>" if items else "")
+                        + "</section>")
 
     refs = [r for r in (p.get("references") or []) if (r.get("text") or r.get("doi") or r.get("url"))]
     if refs:
@@ -443,7 +458,7 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict, ver: 
     <button class="lb-btn" type="button" data-lb="scale">100%</button>
     <button class="lb-btn" type="button" data-lb="close">Close ✕</button>
   </div>
-  <div class="stage"><img alt="Poster: {esc(title)}"></div>
+  <div class="stage"><img alt="" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-alt="Poster: {esc(title)}"></div>
 </div>
 
 <script>window.__SITE__ = {json.dumps({"window": cfg.get("window", {})}, ensure_ascii=False)};</script>
@@ -453,6 +468,100 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict, ver: 
 """
     (out / "p").mkdir(parents=True, exist_ok=True)
     (out / "p" / f"{pid}.html").write_text(html, encoding="utf-8")
+
+
+# ---------------------------------------------------------------- 문서 페이지
+def doc_specs(p: dict) -> list[dict]:
+    """이 사람에게 딸린 문서 페이지 목록. 옛 필드도 계속 받는다."""
+    out = []
+    for spec in (p.get("pages") or []):
+        if spec.get("file"):
+            out.append(dict(spec))
+    legacy = p.get("supplementary_page") or {}
+    if legacy.get("file") and not any(s.get("kind") == "supplementary" for s in out):
+        out.append({"kind": "supplementary",
+                    "title": legacy.get("title") or "Supplementary material",
+                    "file": legacy["file"], "notice": legacy.get("notice")})
+    for s in out:
+        s.setdefault("kind", slug_kind(s.get("title", "document")))
+    return out
+
+
+def slug_kind(title: str) -> str:
+    k = re.sub(r"[^a-z0-9]+", "-", (title or "document").lower()).strip("-")
+    return k or "document"
+
+
+def build_doc_page(cfg: dict, p: dict, out: Path, pth: dict, ver: str, spec: dict) -> list[str]:
+    """서플·초록 같은 문서를 사이트 지면으로 옮긴다. 원본 형식으로 갈라진다."""
+    pid = p["id"]
+    src = pth["assets"] / pid / spec["file"]
+    if not src.exists():
+        return [f"{pid}: {spec['file']} 이 assets/{pid}/ 에 없다"]
+
+    site = cfg.get("site", {})
+    name, _ = person_display(p)
+    poster = p.get("poster", {}) or {}
+    title = spec.get("title") or "Document"
+    kind = spec["kind"]
+
+    dupes = [poster.get("title"), p.get("authors"), p.get("affiliation"), name]
+    if src.suffix.lower() == ".docx":
+        body, notes = render_docx(src)
+        body, cut = strip_front_matter(body, [d for d in dupes if d])
+        if cut:
+            notes.append(f"문서 앞머리에서 제목 블록 {cut}줄을 걷어냈다 — 페이지 머리가 이미 같은 것을 말한다")
+    else:
+        body, notes = render_supplement(
+            src.read_text(encoding="utf-8", errors="replace"),
+            out / "files" / pid / kind, f"../files/{pid}/{kind}", src.parent, dupes)
+    notes = [f"{pid} · {kind}: {n}" for n in notes]
+
+    notice = spec.get("notice")
+    notice_html = (f'<div class="notice" role="note">{esc(notice)}</div>' if notice else "")
+
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  {head(f"{title} — {name}", f"{title} for {poster.get('title', '')}",
+        f"../assets/site.css?v={ver}", site.get("noindex", True),
+        {"title": f"{title} — {name}", "desc": poster.get("title", "")})}
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="banner" id="window-banner" hidden role="status"></div>
+{notice_html}
+
+<nav class="topbar"><div class="wrap">
+  <a class="back" href="{esc(pid)}.html">← {esc(p.get('poster_no', ''))} {esc(name)}</a>
+  <span class="here">{esc(title)}</span>
+</div></nav>
+
+<main id="main">
+  <article class="article"><div class="wrap">
+    <p class="eyebrow">{esc(p.get('poster_no', ''))}{' · ' if p.get('poster_no') and conf_label(p) else ''}{esc(conf_label(p))}</p>
+    <h1>{esc(title)}</h1>
+    <p class="subtitle">{esc(poster.get('title', ''))}</p>
+    <p class="byline">{authors_html(p)}</p>
+  </div></article>
+
+  <div class="wrap"><div class="supp">{body}</div></div>
+</main>
+
+<footer class="foot"><div class="wrap">
+  <p>{esc(site.get('lab_name') or site.get('lab_short') or '')}</p>
+  <p>A temporary page kept open for the duration of the meeting.
+     Copyright in the poster and its supplementary material remains with its authors.</p>
+</div></footer>
+
+<script>window.__SITE__ = {json.dumps({"window": cfg.get("window", {})}, ensure_ascii=False)};</script>
+<script src="../assets/site.js?v={ver}"></script>
+</body>
+</html>
+"""
+    (out / "p").mkdir(parents=True, exist_ok=True)
+    (out / "p" / f"{pid}-{kind}.html").write_text(html, encoding="utf-8")
+    return notes
 
 
 # ---------------------------------------------------------------- 자산
@@ -592,6 +701,8 @@ def main() -> int:
     for i, pid in enumerate(seq):
         p = people[pid]
         notes += stage_assets(pth, p, dist, not a.no_preview, a.long_edge)
+        for s in doc_specs(p):
+            notes += build_doc_page(cfg, p, dist, pth, ver, s)
         build_person(cfg, p, dist, "../files",
                      {"prev": seq[i - 1] if i > 0 else None,
                       "next": seq[i + 1] if i + 1 < len(seq) else None,
@@ -599,6 +710,8 @@ def main() -> int:
     for pid, p in live.items():            # 명부에 없는 제출자도 페이지는 만든다
         if pid not in seq:
             notes += stage_assets(pth, p, dist, not a.no_preview, a.long_edge)
+            for s in doc_specs(p):
+                notes += build_doc_page(cfg, p, dist, pth, ver, s)
             build_person(cfg, p, dist, "../files", {"qr": pid in qr_have}, ver)
 
     build_index(cfg, live, dist, "index" in qr_have, ver)

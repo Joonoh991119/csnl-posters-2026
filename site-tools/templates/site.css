@@ -80,6 +80,17 @@ a:hover { text-decoration: underline; text-underline-offset: 2px; }
 }
 .banner[hidden] { display: none; }
 
+/* 문서 페이지 고지 — 무엇을 읽고 있는지 오해하지 않게 맨 위에 둔다 */
+.notice {
+  background: var(--tint); color: var(--ink-2); border-bottom: 1px solid var(--rule);
+  padding: 10px 24px; font-size: 12.5px; line-height: 1.5; text-align: center;
+}
+.notice b { color: var(--ink); font-weight: 700; }
+
+/* 인라인 수식 — 본문 세리프와 어울리는 이탤릭 */
+.math { font-family: var(--serif); font-style: italic; font-size: 1.03em; white-space: nowrap; }
+.supp sub, .supp sup { font-size: .72em; line-height: 0; }
+
 /* ---------------------------------------------------------------- masthead */
 .masthead { border-top: 2px solid var(--spot); background: var(--surface); border-bottom: 1px solid var(--rule); }
 .masthead .wrap { padding-top: 34px; padding-bottom: 30px; }
@@ -168,7 +179,7 @@ a.card:hover .card-title { text-decoration: underline; text-underline-offset: 2p
 .stepper { display: flex; gap: 6px; flex: none; }
 .step {
   display: inline-flex; align-items: center; justify-content: center;
-  min-width: 36px; height: 32px; padding: 0 9px; border-radius: 3px;
+  min-width: 40px; min-height: 40px; padding: 0 10px; border-radius: 3px;
   border: 1px solid var(--rule-2); background: var(--surface);
   color: var(--ink-2); font-size: 14px; font-weight: 600; text-decoration: none;
 }
@@ -256,6 +267,86 @@ ol.refs a { word-break: break-all; }
 .foot p { margin: 4px 0; max-width: var(--measure); }
 .empty-note { border: 1px dashed var(--rule-2); padding: 20px; color: var(--ink-3); font-size: 14px; text-align: center; }
 
+/* ---------------------------------------------------------------- 서플 본문 */
+/* 긴 파일명·DOI·식별자가 상자 밖으로 흘러 지면을 늘린다. 박스 크기로는 안 잡히고
+   document.scrollWidth 로만 보이는 종류라, 본문 전체에 줄바꿈을 허용해 둔다. */
+.supp { padding: 30px 0 10px; overflow-wrap: break-word; }
+.supp code, .supp td, .supp th, .supp a { overflow-wrap: anywhere; }
+.supp > *:first-child { margin-top: 0; }
+.supp h2 {
+  font-family: var(--serif); font-weight: 600; font-size: clamp(19px, 3vw, 23px);
+  line-height: 1.3; letter-spacing: -.008em; color: var(--ink);
+  margin: 40px 0 14px; padding-top: 16px; border-top: 1px solid var(--rule-2);
+  text-transform: none;
+}
+.supp h3 {
+  font-family: var(--sans); font-size: 13px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--ink-3); margin: 26px 0 10px;
+}
+.supp p { font-size: 15.5px; line-height: 1.72; color: var(--ink-2); max-width: var(--measure); margin: 0 0 14px; }
+.supp strong { color: var(--ink); font-weight: 650; }
+.supp em { font-style: italic; }
+.supp ul, .supp ol { max-width: var(--measure); font-size: 15.5px; line-height: 1.72; color: var(--ink-2); padding-left: 22px; }
+.supp li { margin: 0 0 6px; }
+.supp hr { border: 0; border-top: 1px solid var(--rule); margin: 34px 0; }
+.supp a { text-decoration: underline; text-underline-offset: 2px; }
+
+.supp img, .supp video, .supp iframe { max-width: 100%; height: auto; }
+.supp video { width: 100%; border: 1px solid var(--rule); background: var(--tint); }
+.supp .missing {
+  font-size: 13.5px; color: var(--ink-3); border: 1px dashed var(--rule-2);
+  padding: 12px 14px; max-width: var(--measure);
+}
+/* 문서가 들고 온 '이 페이지 안에서' 목차 */
+.supp .toc {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px;
+  margin: 22px 0 8px; padding: 14px 16px;
+  border: 1px solid var(--rule); background: var(--tint); font-size: 13.5px;
+}
+.supp .toc strong {
+  font-family: var(--sans); font-size: 11.5px; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--ink-3); width: 100%;
+}
+.supp .toc a { text-decoration: none; }
+.supp .toc a:hover { text-decoration: underline; }
+.supp h1 {
+  font-family: var(--serif); font-weight: 600; font-size: clamp(22px, 3.4vw, 27px);
+  line-height: 1.25; margin: 0 0 16px; color: var(--ink);
+}
+
+.supp figure { margin: 24px 0; }
+.supp figure img {
+  display: block; width: 100%; height: auto; border: 1px solid var(--rule);
+  background: var(--tint);
+}
+.supp figcaption {
+  margin: 9px 0 0; font-size: 13px; line-height: 1.55; color: var(--ink-3); max-width: 80ch;
+}
+
+/* 표 — 저널 표 관례: 위아래 굵은 선, 머리글 아래 얇은 선, 세로줄 없음 */
+.supp .table-wrap { overflow-x: auto; margin: 18px 0 22px; }
+.supp table {
+  border-collapse: collapse; width: 100%; font-size: 13.5px; line-height: 1.5;
+  font-variant-numeric: tabular-nums; color: var(--ink-2);
+}
+.supp thead th {
+  text-align: left; font-weight: 700; color: var(--ink); font-size: 12px;
+  letter-spacing: .05em; text-transform: uppercase; padding: 8px 12px 8px 0;
+  border-bottom: 1px solid var(--ink-3);
+}
+.supp table tr:first-child th { border-top: 1.5px solid var(--ink); }
+.supp td, .supp th { padding: 7px 12px 7px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+.supp tbody tr:last-child td { border-bottom: 1.5px solid var(--ink); }
+
+.supp code, .supp kbd {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: .92em; background: var(--tint); padding: 1px 5px; border-radius: 2px;
+}
+.supp pre { overflow-x: auto; background: var(--tint); padding: 14px 16px; border: 1px solid var(--rule); }
+.supp pre code { background: none; padding: 0; }
+
+.supp-link { margin: 0 0 16px; }
+
 /* ---------------------------------------------------------------- lightbox */
 .lightbox { position: fixed; inset: 0; z-index: 100; display: none; background: rgba(10, 10, 12, .95); }
 .lightbox.on { display: block; }
@@ -269,6 +360,11 @@ ol.refs a { word-break: break-all; }
   font-family: var(--sans); font-size: 13px; font-weight: 600; letter-spacing: .04em;
 }
 .lb-btn:hover { background: rgba(255,255,255,.24); }
+
+/* 손가락으로 누르는 화면에서는 타깃을 더 키운다 (Apple HIG 44pt) */
+@media (pointer: coarse) {
+  .btn, .step, .lb-btn { min-height: 44px; }
+}
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 @media print {

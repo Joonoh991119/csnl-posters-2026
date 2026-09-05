@@ -94,7 +94,7 @@
   // Handing them off to a PDF viewer breaks that, so it happens in place.
   function lightbox() {
     var lb = document.getElementById("lightbox");
-    var frame = document.querySelector(".poster-frame[data-zoom]");
+    var frame = document.querySelector(".plate[data-zoom], .poster-frame[data-zoom]");
     if (!lb || !frame) return;
     var img = lb.querySelector("img");
     var stage = lb.querySelector(".stage");
@@ -104,6 +104,7 @@
     function open() {
       lastFocus = document.activeElement;
       img.src = frame.getAttribute("data-zoom");
+      img.alt = img.getAttribute("data-alt") || "";
       lb.classList.add("on");
       document.body.style.overflow = "hidden";
       img.classList.remove("full");
