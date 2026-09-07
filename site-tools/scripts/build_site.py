@@ -73,6 +73,20 @@ def btn(label: str, href: str, primary=False, external=False, extra="") -> str:
     return f'<a class="{cls}" href="{esc(href)}"{tgt} {extra}>{esc(label)}{ext}</a>'
 
 
+def logo_row(site: dict, rel: str, cls: str = "") -> str:
+    """연구실·학과·대학 마크. 없으면 아무것도 그리지 않는다."""
+    items = [l for l in (site.get("logos") or []) if l.get("file")]
+    if not items:
+        return ""
+    out = []
+    for l in items:
+        img = (f'<img src="{rel}/{esc(l["file"])}" alt="{esc(l.get("alt", ""))}" '
+               f'height="{int(l.get("height", 44))}" loading="lazy">')
+        out.append(f'<a href="{esc(l["href"])}" target="_blank" rel="noopener">{img}</a>'
+                   if l.get("href") else img)
+    return f'<div class="logos {cls}">{"".join(out)}</div>'
+
+
 HOME_ICON = ('<svg class="ico" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" '
              'fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" '
              'stroke-linejoin="round"><path d="M2 6.6 8 2l6 4.6"/>'
@@ -271,11 +285,14 @@ def build_index(cfg: dict, people: dict[str, dict], out: Path, has_index_qr: boo
 <div class="banner" id="window-banner" hidden role="status"></div>
 
 <header class="masthead"><div class="wrap">
+  {logo_row({**site, "logos": [l for l in (site.get("logos") or []) if l.get("lead")]}, "site", "lead")}
+  <div class="masthead-text">
   <p class="imprint">{esc(lab)}</p>
   <h1>{esc(title)}</h1>
   {f'<p class="lede">{esc(site.get("lede"))}</p>' if site.get("lede") else ""}
   <ul class="rule-list">{"".join(f"<li>{f}</li>" for f in facts)}</ul>
   <div class="actions">{"".join(links)}</div>
+  </div>
 </div></header>
 
 <main id="main"><div class="wrap">
@@ -288,6 +305,7 @@ def build_index(cfg: dict, people: dict[str, dict], out: Path, has_index_qr: boo
 </div></main>
 
 <footer class="foot"><div class="wrap">
+  {logo_row(site, "site")}
   <p>{esc(lab)}</p>
   {f'<p>Online {esc(fmt_date_en(w.get("start"), w.get("end")))}.</p>' if (w.get("start") or w.get("end")) else ""}
   <p>A temporary page kept open for the duration of the meeting.
@@ -463,6 +481,7 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict, ver: 
 </main>
 
 <footer class="foot"><div class="wrap">
+  {logo_row(site, "../site")}
   <p>{esc(site.get('lab_name') or site.get('lab_short') or '')}</p>
   <p>A temporary page kept open for the duration of the meeting.
      Copyright in the poster and its supplementary material remains with its authors.</p>
@@ -564,6 +583,7 @@ def build_doc_page(cfg: dict, p: dict, out: Path, pth: dict, ver: str, spec: dic
 </main>
 
 <footer class="foot"><div class="wrap">
+  {logo_row(site, "../site")}
   <p>{esc(site.get('lab_name') or site.get('lab_short') or '')}</p>
   <p>A temporary page kept open for the duration of the meeting.
      Copyright in the poster and its supplementary material remains with its authors.</p>
@@ -695,6 +715,13 @@ def main() -> int:
     if dist.exists():
         shutil.rmtree(dist)
     (dist / "assets").mkdir(parents=True, exist_ok=True)
+    site_src = pth["assets"] / "_site"
+    if site_src.is_dir():
+        (dist / "site").mkdir(parents=True, exist_ok=True)
+        for f in site_src.iterdir():
+            if f.is_file() and not f.name.startswith("."):
+                shutil.copy2(f, dist / "site" / f.name)
+
     qr_src = pth["root"] / "qr"
     qr_have: set[str] = set()
     if qr_src.is_dir():

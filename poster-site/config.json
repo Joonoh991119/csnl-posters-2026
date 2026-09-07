@@ -8,7 +8,26 @@
     "lab_home_url": "https://www.snu-csnl.com/",
     "contact_note": "",
     "locale": "en",
-    "noindex": true
+    "noindex": true,
+    "logos": [
+      {
+        "file": "csnl.png",
+        "alt": "Cognitive and Systems Neuroscience Laboratory",
+        "height": 54,
+        "href": "https://www.snu-csnl.com/",
+        "lead": true
+      },
+      {
+        "file": "bcs.png",
+        "alt": "Department of Brain and Cognitive Sciences",
+        "height": 38
+      },
+      {
+        "file": "snu.png",
+        "alt": "Seoul National University",
+        "height": 38
+      }
+    ]
   },
   "window": {
     "start": "2026-09-03",

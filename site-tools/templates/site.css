@@ -12,29 +12,32 @@
    designed for. */
 
 :root {
-  /* 지면과 종이를 나눈다. 전부 흰색이면 섹션이 어디서 끝나는지 눈이 못 잡는다. */
-  --paper: #f6f6f3;           /* 페이지 바닥 */
-  --surface: #ffffff;         /* 글이 놓이는 종이 */
-  --tint: #eeeeea;            /* 도판 바탕·빈 자리·목차 */
-  --ink: #101114;
-  --ink-2: #3f444b;
-  --ink-3: #6b7076;           /* 지면 위 4.6:1 */
-  --rule: #e0e0dc;
-  --rule-2: #c6c6c2;
-  /* 머리·꼬리 띠는 연구실 홈(snu-csnl.com)의 네이비. Nature 도 흰 본문 위에
-     짙은 띠로 지면을 여닫는다. */
-  --band: #282862;
-  --band-ink: #ffffff;        /* 13.4:1 */
-  --band-dim: #c9c9d4;        /* 8.2:1 */
-  --accent: #1f4e79;          /* 링크 — 8.7:1 */
-  --accent-fill: #1a1c20;     /* 채움 버튼 — 흰 글자 17.1:1 */
+  /* 색은 연구실이 이미 쓰고 있는 것에서 가져왔다 — 로고 세 개에서 실제로 뽑은 값이다.
+     CSNL 나무 올리브 #789c00 · BCS 뇌 번트오렌지 #cc6c3c · SNU 엠블럼 네이비 #182454.
+     띠는 대학의 네이비, 눈을 끄는 표지는 학과의 따뜻한 색, 링크도 네이비 계열로 두어
+     '흔한 과학 파랑' 이 주인공이 되지 않게 한다. 대비는 전부 재서 맞췄다. */
+  --paper: #f5f4f0;           /* 페이지 바닥 — 살짝 따뜻하게 */
+  --surface: #ffffff;
+  --tint: #efeee8;
+  --ink: #14161a;
+  --ink-2: #3d434b;
+  --ink-3: #676d75;
+  --rule: #e2e0d9;
+  --rule-2: #c8c5bb;
+  --band: #182454;            /* SNU 엠블럼 네이비 — 흰 글자 14.8:1 */
+  --band-ink: #ffffff;
+  --band-dim: #c3c8d8;        /* 8.9:1 */
+  --band-mark: #e8a33d;       /* 띠 위 앰버 선 — 장식, 6.9:1 */
+  --accent: #1b3a6b;          /* 링크 — 11.3:1 */
+  --accent-fill: #182454;     /* 채움 버튼 = 띠와 같은 네이비, 흰 글자 14.8:1 */
   --accent-fill-ink: #ffffff;
-  --spot: #8f2a22;            /* 상단 선·포스터 번호·섹션 표지 — 8.3:1 */
+  --spot: #a04a1e;            /* BCS 번트오렌지 — 표지·포스터 번호, 6.0:1 */
+  --olive: #4e6600;           /* CSNL 올리브 — 보조 표지, 6.5:1 */
   --serif: "New York", "Iowan Old Style", Charter, Palatino, "Palatino Linotype",
     Georgia, "Times New Roman", "Apple SD Gothic Neo", "Noto Serif KR", serif;
   --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue",
     Helvetica, Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-  --maxw: 960px;
+  --maxw: 980px;
   --measure: 68ch;
 }
 
@@ -80,15 +83,34 @@ a:hover { text-decoration: underline; text-underline-offset: 2px; }
 .supp sub, .supp sup { font-size: .72em; line-height: 0; }
 
 /* ---------------------------------------------------------------- masthead */
-.masthead { background: var(--band); color: var(--band-ink); border-top: 3px solid var(--spot); }
-.masthead .wrap { padding-top: 34px; padding-bottom: 30px; }
+.masthead {
+  background: var(--band); color: var(--band-ink);
+  border-top: 3px solid var(--band-mark); border-bottom: 3px solid var(--band-mark);
+}
+.logos { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.logos img { display: block; height: 44px; width: auto; }
+/* 머리의 마크는 흰 판 위에 올린다 — 올리브가 네이비에 묻히지 않게 하고,
+   제목과 나란히 놓아 제대로 된 머리표(lockup)가 되게 한다. */
+.logos.lead { margin: 0; }
+.logos.lead img {
+  height: 76px; background: #fff; padding: 9px; border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.25);
+}
+.masthead .wrap { display: grid; grid-template-columns: 1fr; gap: 18px; align-items: start; }
+@media (min-width: 760px) {
+  .masthead .wrap { grid-template-columns: auto 1fr; gap: 28px; }
+  .masthead .logos.lead { padding-top: 6px; }
+}
+.foot .logos { margin: 0 0 18px; opacity: .95; }
+.foot .logos img { height: 38px; }
+.masthead .wrap { padding-top: 32px; padding-bottom: 30px; }
 .masthead .imprint { color: var(--band-dim); }
 .imprint {
   margin: 0 0 14px; font-size: 11.5px; font-weight: 600; letter-spacing: .13em;
   text-transform: uppercase; color: var(--ink-3);
 }
 .masthead h1 {
-  font-family: var(--serif); font-weight: 600;
+  font-family: var(--serif); font-weight: 700;
   margin: 0 0 10px; font-size: clamp(30px, 5.4vw, 46px); line-height: 1.12;
   letter-spacing: -.012em; overflow-wrap: anywhere;
 }
@@ -129,7 +151,7 @@ a:hover { text-decoration: underline; text-underline-offset: 2px; }
 .section > h2 {
   font-family: var(--sans); font-size: 11.5px; font-weight: 700; letter-spacing: .13em;
   text-transform: uppercase; color: var(--ink-2);
-  margin: 0 0 16px; padding-left: 10px; border-left: 3px solid var(--spot);
+  margin: 0 0 16px; padding-left: 11px; border-left: 4px solid var(--spot);
 }
 
 /* ---------------------------------------------------------------- index grid */
@@ -138,9 +160,11 @@ a:hover { text-decoration: underline; text-underline-offset: 2px; }
 
 .card { display: flex; flex-direction: column; color: inherit; text-decoration: none; }
 .thumb {
-  height: 178px; background: var(--tint); border: 1px solid var(--rule); overflow: hidden;
+  height: 186px; background: var(--tint); border: 1px solid var(--rule-2);
+  overflow: hidden; padding: 6px;
 }
-a.card:hover .thumb { border-color: var(--accent); }
+.thumb img { border: 1px solid var(--rule); }
+a.card:hover .thumb { border-color: var(--spot); }
 a.card:hover .card-title { text-decoration: underline; text-underline-offset: 2px; }
 .thumb img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
 /* 아직 안 낸 자리는 빈 상자를 크게 남기지 않는다 — 있는 포스터가 주인공이다. */
@@ -149,23 +173,27 @@ a.card:hover .card-title { text-decoration: underline; text-underline-offset: 2p
   color: var(--ink-3); font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase;
 }
 .card-body { padding: 12px 0 0; display: flex; flex-direction: column; gap: 5px; flex: 1; }
-.card-top { display: flex; align-items: baseline; gap: 9px; }
+.card-top { display: flex; align-items: center; gap: 9px; }
 /* 저자 전원. 발표자만 굵게 — 저널이 발표 저자를 표시하는 방식이다. */
 .card-authors { margin: 4px 0 0; font-size: 13.5px; line-height: 1.45; color: var(--ink-2); }
 .card-authors b { font-weight: 700; color: var(--ink); }
 .byline b { font-weight: 700; }
 .btn .ico { flex: none; margin-right: -1px; }
+/* 포스터 번호는 목록에서 눈이 처음 닿는 곳이다. 따뜻한 칩으로 세운다. */
 .pno {
-  flex: none; font-family: var(--sans); font-size: 12px; font-weight: 700;
-  letter-spacing: .06em; color: var(--spot); text-transform: uppercase;
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  min-width: 34px; height: 22px; padding: 0 8px; border-radius: 2px;
+  background: var(--spot); color: #fff;
+  font-family: var(--sans); font-size: 11.5px; font-weight: 700; letter-spacing: .08em;
 }
+.card.pending .pno { background: transparent; color: var(--ink-3); border: 1px solid var(--rule-2); }
 .card.pending .pno { color: var(--ink-3); }
 .card-name { font-size: 15px; font-weight: 600; color: var(--ink); }
 .card-name .en { color: var(--ink-3); font-weight: 400; }
 .card-title {
-  font-family: var(--serif); margin: 2px 0 0; font-size: 17px; line-height: 1.34;
+  font-family: var(--serif); font-weight: 650; margin: 4px 0 0; font-size: 17.5px; line-height: 1.32;
   color: var(--ink); overflow-wrap: anywhere;
-  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
 }
 .card.pending .card-title { font-family: var(--sans); font-size: 14px; color: var(--ink-3); }
 .card.pending .card-name { font-size: 15px; }
@@ -190,7 +218,7 @@ a.card:hover .card-title { text-decoration: underline; text-underline-offset: 2p
 .article .wrap { padding-top: 34px; padding-bottom: 30px; }
 .eyebrow { margin: 0 0 12px; font-size: 11.5px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; color: var(--spot); }
 .article h1 {
-  font-family: var(--serif); font-weight: 600; margin: 0 0 8px;
+  font-family: var(--serif); font-weight: 700; margin: 0 0 10px;
   font-size: clamp(25px, 4.3vw, 36px); line-height: 1.22; letter-spacing: -.012em;
   max-width: var(--measure); overflow-wrap: anywhere;
 }
@@ -265,7 +293,7 @@ ol.refs a { word-break: break-all; }
 
 .foot {
   background: var(--band); color: var(--band-dim);
-  padding: 30px 0 40px; font-size: 12.5px; border-top: 3px solid var(--spot);
+  padding: 30px 0 40px; font-size: 12.5px; border-top: 3px solid var(--band-mark);
 }
 .foot p { margin: 4px 0; max-width: var(--measure); }
 .foot p:first-child { color: var(--band-ink); font-weight: 600; }
@@ -282,14 +310,14 @@ ol.refs a { word-break: break-all; }
 .supp > *:first-child { margin-top: 0; }
 .supp > h2:first-child { margin-top: 0; }
 .supp h2 {
-  font-family: var(--serif); font-weight: 600; font-size: clamp(19px, 3vw, 23px);
+  font-family: var(--serif); font-weight: 700; font-size: clamp(19px, 3vw, 23px);
   line-height: 1.3; letter-spacing: -.008em; color: var(--ink);
-  margin: 40px 0 14px; padding-top: 16px; border-top: 1px solid var(--rule-2);
+  margin: 40px 0 14px; padding-top: 16px; border-top: 2px solid var(--olive);
   text-transform: none;
 }
 .supp h3 {
   font-family: var(--sans); font-size: 13px; font-weight: 700; letter-spacing: .08em;
-  text-transform: uppercase; color: var(--ink-3); margin: 26px 0 10px;
+  text-transform: uppercase; color: var(--olive); margin: 26px 0 10px;
 }
 .supp p { font-size: 15.5px; line-height: 1.72; color: var(--ink-2); max-width: var(--measure); margin: 0 0 14px; }
 .supp strong { color: var(--ink); font-weight: 650; }
