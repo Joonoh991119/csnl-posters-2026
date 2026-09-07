@@ -218,23 +218,21 @@ def build_index(cfg: dict, people: dict[str, dict], out: Path, has_index_qr: boo
         thumb = poster.get("thumb") or poster.get("preview")
         thumb_html = (f'<div class="thumb"><img src="files/{esc(pid)}/{esc(thumb)}" alt="" loading="lazy"></div>'
                       if thumb else '<div class="thumb none">No preview</div>')
-        foot = []
-        if conf_label(p):
-            foot.append(esc(conf_label(p)))
-        when = fmt_date_en((p.get("conference", {}) or {}).get("date"),
-                           (p.get("conference", {}) or {}).get("date_end"))
-        if when:
-            foot.append(esc(when))
+        meeting = esc(conf_label(p))
+        when = esc(fmt_date_en((p.get("conference", {}) or {}).get("date"),
+                               (p.get("conference", {}) or {}).get("date_end")))
         ttl = poster.get("title") or ""
         cards.append(
             f'<a class="card" href="p/{esc(pid)}.html">'
-            + (f'<p class="card-kicker">{" · ".join(foot)}</p>' if foot else "")
+            + (f'<p class="card-kicker">{meeting}</p>' if meeting else "")
             + thumb_html
             + '<div class="card-body">'
             + (f'<h3 class="card-title">{esc(ttl)}</h3>' if ttl else "")
             + f'<p class="card-authors">{authors_html(p)}</p>'
+            + '<div class="card-foot">'
+            + (f'<span class="card-when">{when}</span>' if when else "<span></span>")
             + '<span class="card-cta">View poster <span aria-hidden="true">→</span></span>'
-            + "</div></a>"
+            + "</div></div></a>"
         )
 
     home = site.get("lab_home_url") or site.get("members_url") or ""
@@ -260,18 +258,20 @@ def build_index(cfg: dict, people: dict[str, dict], out: Path, has_index_qr: boo
         thumb = poster.get("thumb") or poster.get("preview")
         thumb_html = (f'<div class="thumb"><img src="files/{esc(pid)}/{esc(thumb)}" alt="" loading="lazy"></div>'
                       if thumb else '<div class="thumb none">No preview</div>')
-        foot = [x for x in (esc(conf_label(p)),
-                            esc(fmt_date_en((p.get("conference", {}) or {}).get("date"),
-                                            (p.get("conference", {}) or {}).get("date_end")))) if x]
+        meeting = esc(conf_label(p))
+        when = esc(fmt_date_en((p.get("conference", {}) or {}).get("date"),
+                               (p.get("conference", {}) or {}).get("date_end")))
         cards.append(
             f'<a class="card" href="p/{esc(pid)}.html">'
-            + (f'<p class="card-kicker">{" · ".join(foot)}</p>' if foot else "")
+            + (f'<p class="card-kicker">{meeting}</p>' if meeting else "")
             + thumb_html
             + '<div class="card-body">'
             + (f'<h3 class="card-title">{esc(poster.get("title") or "")}</h3>' if poster.get("title") else "")
             + f'<p class="card-authors">{authors_html(p)}</p>'
+            + '<div class="card-foot">'
+            + (f'<span class="card-when">{when}</span>' if when else "<span></span>")
             + '<span class="card-cta">View poster <span aria-hidden="true">→</span></span>'
-            + "</div></a>"
+            + "</div></div></a>"
         )
 
     shown = sum(1 for x in cfg.get("participants", []) if x["id"] in people) + len(extras)
@@ -365,11 +365,21 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict, ver: 
     pactions = []
     for s in specs:
         if s["kind"] == "abstract":
-            pactions.append(btn(s.get("title") or "Abstract", f"{pid}-abstract.html"))
+            pactions.append(
+                f'<a class="pick" href="{esc(pid)}-abstract.html">'
+                f'<b>Poster abstract</b><span>The submitted abstract</span></a>')
+    for s in specs:
+        if s["kind"] == "supplementary":
+            pactions.append(
+                f'<a class="pick" href="{esc(pid)}-supplementary.html">'
+                f'<b>Supplementary</b><span>Figures, tables, movies</span></a>')
     if file_rel:
         kind = "PDF" if poster["file"].lower().endswith(".pdf") else "image"
-        pactions.append(btn(f"Open original ({kind})", file_rel, primary=True, external=True))
-        pactions.append(btn("Download", file_rel, extra="download"))
+        size = f" · {human_size(poster['bytes'])}" if poster.get("bytes") else ""
+        pactions.append(
+            f'<a class="pick pick-main" href="{esc(file_rel)}" target="_blank" rel="noopener">'
+            f'<b>Poster {kind} <span aria-hidden="true">↗</span></b>'
+            f'<span>Full resolution{esc(size)}</span></a>')
 
     sections = []
     note = p.get("note") or {}
@@ -381,9 +391,8 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict, ver: 
         sections.append('<section class="section"><h2>Abstract</h2>'
                         f'<p class="abstract">{esc(p["abstract"])}</p></section>')
 
-    page = next((s for s in specs if s["kind"] == "supplementary"), {})
     supp = [s for s in (p.get("supplementary") or []) if s.get("file")]
-    if page or supp:
+    if supp:
         items = []
         for s in supp:
             rel = f"{files_rel}/{pid}/{s['file']}"
@@ -397,15 +406,8 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict, ver: 
                 + f'<p class="meta">{esc(" · ".join(bits))}</p></div>'
                 f'<span class="dl">{btn("Open", rel, external=True)}</span></li>'
             )
-        lead = ""
-        if page:
-            lead = ('<p class="supp-link">'
-                    + btn(page.get("title") or "Supplementary material",
-                          f"{pid}-supplementary.html", primary=True)
-                    + "</p>")
-        sections.append('<section class="section"><h2>Supplementary</h2>' + lead
-                        + ('<ul class="list">' + "".join(items) + "</ul>" if items else "")
-                        + "</section>")
+        sections.append('<section class="section"><h2>Supplementary files</h2>'
+                        + '<ul class="list">' + "".join(items) + "</ul></section>")
 
     refs = [r for r in (p.get("references") or []) if (r.get("text") or r.get("doi") or r.get("url"))]
     if refs:
@@ -453,7 +455,7 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict, ver: 
 <div class="banner" id="window-banner" hidden role="status"></div>
 
 <nav class="topbar"><div class="wrap">
-  <a class="back" href="../index.html">← All posters</a>
+  <a class="back" href="../index.html">← {esc(site.get('title') or 'All posters')}</a>
   <span class="here">{esc(name)}</span>
   <span class="stepper">
     {step(nav.get('prev'), '‹', 'Previous poster')}
@@ -472,7 +474,7 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict, ver: 
 
     <div class="figure">
       {plate}
-      <div class="actions">{"".join(pactions)}</div>
+      <div class="picks">{"".join(pactions)}</div>
     </div>
   </div></article>
 
