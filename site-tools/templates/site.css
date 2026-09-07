@@ -12,25 +12,29 @@
    designed for. */
 
 :root {
-  --paper: #ffffff;           /* 저널은 흰 종이에 찍는다. 지면 전체가 흰색이고 구획은 선이 한다 */
-  --surface: #ffffff;
-  --tint: #f4f4f2;            /* 도판 바탕·빈 자리에만 쓰는 아주 옅은 중립 */
+  /* 지면과 종이를 나눈다. 전부 흰색이면 섹션이 어디서 끝나는지 눈이 못 잡는다. */
+  --paper: #f6f6f3;           /* 페이지 바닥 */
+  --surface: #ffffff;         /* 글이 놓이는 종이 */
+  --tint: #eeeeea;            /* 도판 바탕·빈 자리·목차 */
   --ink: #101114;
   --ink-2: #3f444b;
-  --ink-3: #6b7076;
-  --rule: #e2e2df;
+  --ink-3: #6b7076;           /* 지면 위 4.6:1 */
+  --rule: #e0e0dc;
   --rule-2: #c6c6c2;
-  --accent: #1f4e79;          /* 링크 — 깊은 잉크 블루, 8.66:1 */
-  --accent-fill: #1a1c20;     /* 채움 버튼은 근검정. 포화된 파란 CTA 는 지면이 아니라 앱이다 */
-  --accent-fill-ink: #ffffff; /* 17.1:1 */
-  --spot: #8f2a22;            /* 인쇄 잉크에 가까운 딥 레드, 8.33:1 */
-  --warn-bg: #f4f4f2;
-  --warn-ink: #3f444b;
+  /* 머리·꼬리 띠는 연구실 홈(snu-csnl.com)의 네이비. Nature 도 흰 본문 위에
+     짙은 띠로 지면을 여닫는다. */
+  --band: #282862;
+  --band-ink: #ffffff;        /* 13.4:1 */
+  --band-dim: #c9c9d4;        /* 8.2:1 */
+  --accent: #1f4e79;          /* 링크 — 8.7:1 */
+  --accent-fill: #1a1c20;     /* 채움 버튼 — 흰 글자 17.1:1 */
+  --accent-fill-ink: #ffffff;
+  --spot: #8f2a22;            /* 상단 선·포스터 번호·섹션 표지 — 8.3:1 */
   --serif: "New York", "Iowan Old Style", Charter, Palatino, "Palatino Linotype",
     Georgia, "Times New Roman", "Apple SD Gothic Neo", "Noto Serif KR", serif;
   --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue",
     Helvetica, Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-  --maxw: 940px;
+  --maxw: 960px;
   --measure: 68ch;
 }
 
@@ -57,9 +61,10 @@ a:hover { text-decoration: underline; text-underline-offset: 2px; }
 .skip:focus { left: 12px; top: 12px; }
 
 .banner {
-  background: var(--warn-bg); color: var(--warn-ink);
-  padding: 8px 24px; font-size: 12.5px; font-weight: 600; text-align: center;
-  letter-spacing: .04em; border-bottom: 1px solid var(--rule);
+  background: var(--tint); color: var(--ink-2);
+  padding: 9px 24px; font-size: 12.5px; font-weight: 600; text-align: center;
+  letter-spacing: .04em; border-bottom: 1px solid var(--rule-2);
+  box-shadow: inset 0 3px 0 var(--spot);
 }
 .banner[hidden] { display: none; }
 
@@ -75,8 +80,9 @@ a:hover { text-decoration: underline; text-underline-offset: 2px; }
 .supp sub, .supp sup { font-size: .72em; line-height: 0; }
 
 /* ---------------------------------------------------------------- masthead */
-.masthead { border-top: 2px solid var(--spot); background: var(--surface); border-bottom: 1px solid var(--rule); }
+.masthead { background: var(--band); color: var(--band-ink); border-top: 3px solid var(--spot); }
 .masthead .wrap { padding-top: 34px; padding-bottom: 30px; }
+.masthead .imprint { color: var(--band-dim); }
 .imprint {
   margin: 0 0 14px; font-size: 11.5px; font-weight: 600; letter-spacing: .13em;
   text-transform: uppercase; color: var(--ink-3);
@@ -86,6 +92,9 @@ a:hover { text-decoration: underline; text-underline-offset: 2px; }
   margin: 0 0 10px; font-size: clamp(30px, 5.4vw, 46px); line-height: 1.12;
   letter-spacing: -.012em; overflow-wrap: anywhere;
 }
+.masthead .lede { color: var(--band-dim); }
+.masthead .rule-list { color: var(--band-dim); }
+.masthead .rule-list b { color: var(--band-ink); }
 .lede { margin: 0; color: var(--ink-2); font-size: 16.5px; max-width: var(--measure); }
 .rule-list { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 16px 0 0; padding: 0; list-style: none; font-size: 13.5px; color: var(--ink-3); }
 .rule-list li { display: inline-flex; gap: 7px; }
@@ -101,18 +110,26 @@ a:hover { text-decoration: underline; text-underline-offset: 2px; }
   border: 1px solid var(--rule-2); background: var(--surface); color: var(--ink);
 }
 .btn:hover { text-decoration: none; border-color: var(--ink-3); }
+/* 네이비 띠 위의 버튼 */
+.masthead .btn { background: var(--band-ink); color: var(--band); border-color: transparent; }
+.masthead .btn:hover { filter: brightness(.93); }
 .btn-primary { background: var(--accent-fill); border-color: var(--accent-fill); color: var(--accent-fill-ink); }
 .btn-primary:hover { filter: brightness(1.08); }
 .btn[aria-disabled="true"] { opacity: .5; pointer-events: none; }
 .btn .ext { font-size: 11px; opacity: .8; }
 
 /* ---------------------------------------------------------------- sections */
-.section { padding: 34px 0 0; }
-.section:last-of-type { padding-bottom: 44px; }
+/* 섹션은 지면 위에 놓인 종이 한 장. 흰 바탕 위 흰 바탕이면 경계가 안 보인다. */
+.section {
+  background: var(--surface); border: 1px solid var(--rule);
+  padding: 20px 24px 24px; margin: 0 0 16px;
+}
+.section:first-of-type { margin-top: 22px; }
+.section:last-of-type { margin-bottom: 44px; }
 .section > h2 {
   font-family: var(--sans); font-size: 11.5px; font-weight: 700; letter-spacing: .13em;
-  text-transform: uppercase; color: var(--ink-3);
-  margin: 0 0 16px; padding-top: 12px; border-top: 1px solid var(--rule-2);
+  text-transform: uppercase; color: var(--ink-2);
+  margin: 0 0 16px; padding-left: 10px; border-left: 3px solid var(--spot);
 }
 
 /* ---------------------------------------------------------------- index grid */
@@ -155,7 +172,7 @@ a.card:hover .card-title { text-decoration: underline; text-underline-offset: 2p
 .card-foot { margin-top: auto; padding-top: 9px; font-size: 13px; color: var(--ink-3); display: flex; flex-wrap: wrap; gap: 3px 12px; }
 
 /* ---------------------------------------------------------------- poster page */
-.topbar { background: var(--surface); border-bottom: 1px solid var(--rule); position: sticky; top: 0; z-index: 30; }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--rule-2); position: sticky; top: 0; z-index: 30; }
 .topbar .wrap { display: flex; align-items: center; gap: 12px; min-height: 50px; }
 .topbar .back { font-size: 13.5px; font-weight: 600; letter-spacing: .02em; flex: none; }
 .topbar .here { font-size: 12.5px; color: var(--ink-3); margin: 0 auto 0 6px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -169,7 +186,7 @@ a.card:hover .card-title { text-decoration: underline; text-underline-offset: 2p
 .step:hover { text-decoration: none; border-color: var(--ink-3); }
 .step[aria-disabled="true"] { opacity: .35; pointer-events: none; }
 
-.article { background: var(--surface); border-bottom: 1px solid var(--rule); }
+.article { background: var(--surface); border-bottom: 1px solid var(--rule-2); }
 .article .wrap { padding-top: 34px; padding-bottom: 30px; }
 .eyebrow { margin: 0 0 12px; font-size: 11.5px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; color: var(--spot); }
 .article h1 {
@@ -246,16 +263,24 @@ ol.refs li::before {
 }
 ol.refs a { word-break: break-all; }
 
-.foot { padding: 26px 0 48px; color: var(--ink-3); font-size: 12.5px; }
+.foot {
+  background: var(--band); color: var(--band-dim);
+  padding: 30px 0 40px; font-size: 12.5px; border-top: 3px solid var(--spot);
+}
 .foot p { margin: 4px 0; max-width: var(--measure); }
+.foot p:first-child { color: var(--band-ink); font-weight: 600; }
 .empty-note { border: 1px dashed var(--rule-2); padding: 20px; color: var(--ink-3); font-size: 14px; text-align: center; }
 
 /* ---------------------------------------------------------------- 서플 본문 */
 /* 긴 파일명·DOI·식별자가 상자 밖으로 흘러 지면을 늘린다. 박스 크기로는 안 잡히고
    document.scrollWidth 로만 보이는 종류라, 본문 전체에 줄바꿈을 허용해 둔다. */
-.supp { padding: 30px 0 10px; overflow-wrap: break-word; }
+.supp {
+  background: var(--surface); border: 1px solid var(--rule);
+  padding: 26px 26px 30px; margin: 22px 0 44px; overflow-wrap: break-word;
+}
 .supp code, .supp td, .supp th, .supp a { overflow-wrap: anywhere; }
 .supp > *:first-child { margin-top: 0; }
+.supp > h2:first-child { margin-top: 0; }
 .supp h2 {
   font-family: var(--serif); font-weight: 600; font-size: clamp(19px, 3vw, 23px);
   line-height: 1.3; letter-spacing: -.008em; color: var(--ink);
@@ -329,6 +354,8 @@ ol.refs a { word-break: break-all; }
 .supp pre code { background: none; padding: 0; }
 
 .supp-link { margin: 0 0 16px; }
+.supp-link:last-child { margin-bottom: 0; }
+.section > .actions:last-child { margin-bottom: 0; }
 
 /* ---------------------------------------------------------------- lightbox */
 /* 확대 장막도 밝게. 포스터는 흰 종이라 검은 바탕에 얹으면 지면과 따로 논다. */
