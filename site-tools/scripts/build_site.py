@@ -209,9 +209,9 @@ def build_index(cfg: dict, people: dict[str, dict], out: Path, has_index_qr: boo
         if not p:
             cards.append(
                 '<div class="card pending" aria-disabled="true">'
-                '<div class="thumb none">Pending</div>'
-                f'<div class="card-body"><div class="card-top"><span class="pno">{pno}</span>{name_block}</div>'
-                '<p class="card-title">Not submitted yet.</p></div></div>'
+                '<p class="card-kicker">Pending</p>'
+                '<div class="thumb none">Not submitted yet</div>'
+                f'<div class="card-body">{name_block}</div></div>'
             )
             continue
         poster = p.get("poster", {}) or {}
@@ -227,12 +227,14 @@ def build_index(cfg: dict, people: dict[str, dict], out: Path, has_index_qr: boo
             foot.append(esc(when))
         ttl = poster.get("title") or ""
         cards.append(
-            f'<a class="card" href="p/{esc(pid)}.html">{thumb_html}'
-            # 발표자 이름은 아래 저자 줄이 담당한다 — 상단은 번호만 둔다
-            f'<div class="card-body"><div class="card-top"><span class="pno">{pno}</span></div>'
-            + (f'<p class="card-title">{esc(ttl)}</p>' if ttl else "")
+            f'<a class="card" href="p/{esc(pid)}.html">'
+            + (f'<p class="card-kicker">{" · ".join(foot)}</p>' if foot else "")
+            + thumb_html
+            + '<div class="card-body">'
+            + (f'<h3 class="card-title">{esc(ttl)}</h3>' if ttl else "")
             + f'<p class="card-authors">{authors_html(p)}</p>'
-            + f'<div class="card-foot">{"".join(f"<span>{x}</span>" for x in foot)}</div></div></a>'
+            + '<span class="card-cta">View poster <span aria-hidden="true">→</span></span>'
+            + "</div></a>"
         )
 
     home = site.get("lab_home_url") or site.get("members_url") or ""
@@ -262,12 +264,14 @@ def build_index(cfg: dict, people: dict[str, dict], out: Path, has_index_qr: boo
                             esc(fmt_date_en((p.get("conference", {}) or {}).get("date"),
                                             (p.get("conference", {}) or {}).get("date_end")))) if x]
         cards.append(
-            f'<a class="card" href="p/{esc(pid)}.html">{thumb_html}'
-            f'<div class="card-body"><div class="card-top">'
-            f'<span class="pno">{esc(p.get("poster_no") or "")}</span></div>'
-            + (f'<p class="card-title">{esc(poster.get("title") or "")}</p>' if poster.get("title") else "")
+            f'<a class="card" href="p/{esc(pid)}.html">'
+            + (f'<p class="card-kicker">{" · ".join(foot)}</p>' if foot else "")
+            + thumb_html
+            + '<div class="card-body">'
+            + (f'<h3 class="card-title">{esc(poster.get("title") or "")}</h3>' if poster.get("title") else "")
             + f'<p class="card-authors">{authors_html(p)}</p>'
-            + f'<div class="card-foot">{"".join(f"<span>{x}</span>" for x in foot)}</div></div></a>'
+            + '<span class="card-cta">View poster <span aria-hidden="true">→</span></span>'
+            + "</div></a>"
         )
 
     shown = sum(1 for x in cfg.get("participants", []) if x["id"] in people) + len(extras)
@@ -296,7 +300,7 @@ def build_index(cfg: dict, people: dict[str, dict], out: Path, has_index_qr: boo
 </div></header>
 
 <main id="main"><div class="wrap">
-  <section class="section">
+  <section class="section section-posters">
     <h2>Posters</h2>
     {'<div class="grid">' + "".join(cards) + '</div>' if cards
      else '<p class="empty-note">No participants registered yet.</p>'}
@@ -450,7 +454,7 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict, ver: 
 
 <nav class="topbar"><div class="wrap">
   <a class="back" href="../index.html">← All posters</a>
-  <span class="here">{esc(p.get('poster_no', ''))} · {esc(name)}</span>
+  <span class="here">{esc(name)}</span>
   <span class="stepper">
     {step(nav.get('prev'), '‹', 'Previous poster')}
     {step(nav.get('next'), '›', 'Next poster')}
@@ -459,7 +463,7 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict, ver: 
 
 <main id="main">
   <article class="article"><div class="wrap">
-    <p class="eyebrow">{esc(p.get('poster_no', ''))}{' · ' if p.get('poster_no') and conf_label(p) else ''}{esc(conf_label(p))}</p>
+    <p class="eyebrow">{esc(conf_label(p))}</p>
     <h1>{esc(title)}</h1>
     {f'<p class="subtitle">{esc(poster.get("title_en"))}</p>' if poster.get("title_en") else ""}
     <p class="byline">{authors_html(p)}</p>
@@ -562,13 +566,13 @@ def build_doc_page(cfg: dict, p: dict, out: Path, pth: dict, ver: str, spec: dic
 {notice_html}
 
 <nav class="topbar"><div class="wrap">
-  <a class="back" href="{esc(pid)}.html">← {esc(p.get('poster_no', ''))} {esc(name)}</a>
+  <a class="back" href="{esc(pid)}.html">← {esc(name)}</a>
   <span class="here">{esc(title)}</span>
 </div></nav>
 
 <main id="main">
   <article class="article"><div class="wrap">
-    <p class="eyebrow">{esc(p.get('poster_no', ''))}{' · ' if p.get('poster_no') and conf_label(p) else ''}{esc(conf_label(p))}</p>
+    <p class="eyebrow">{esc(conf_label(p))}</p>
     <h1>{esc(title)}</h1>
     <p class="subtitle">{esc(poster.get('title', ''))}</p>
     <p class="byline">{authors_html(p)}</p>

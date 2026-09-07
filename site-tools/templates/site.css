@@ -151,7 +151,13 @@ a:hover { text-decoration-color: var(--accent-hover); color: var(--accent-hover)
   background: var(--surface); border: 1px solid var(--rule);
   padding: 26px 30px 30px; margin: 0 0 20px;
 }
-.section:first-of-type { margin-top: 22px; }
+.section:first-of-type { margin-top: 26px; }
+/* 포스터 셋이 이 페이지의 주역이다. 흰 카드 안에 카드를 또 넣지 않고 지면에 직접 놓는다. */
+.section-posters { background: transparent; border: 0; padding: 0; margin-bottom: 34px; }
+.section-posters > h2 {
+  font-family: var(--sans); font-size: 12.5px; letter-spacing: .16em;
+  color: var(--ink-2); border-left-width: 5px; margin-bottom: 22px;
+}
 .section:last-of-type { margin-bottom: 44px; }
 .section > h2 {
   font-family: var(--sans); font-size: 11.5px; font-weight: 700; letter-spacing: .13em;
@@ -160,27 +166,47 @@ a:hover { text-decoration-color: var(--accent-hover); color: var(--accent-hover)
 }
 
 /* ---------------------------------------------------------------- index grid */
-.grid { display: grid; gap: 40px 34px; grid-template-columns: 1fr; align-items: start; }
+.grid { display: grid; gap: 40px 34px; grid-template-columns: 1fr; align-items: stretch; }
 @media (min-width: 660px) { .grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); } }
 
-.card { display: flex; flex-direction: column; color: inherit; text-decoration: none; }
-.thumb {
-  height: 208px; background: var(--tint); border: 1px solid var(--rule-2);
-  overflow: hidden; padding: 6px;
+.card {
+  display: flex; flex-direction: column;
+  background: var(--surface); border: 1px solid var(--rule-2);
+  border-top: 4px solid var(--spot); padding: 0 0 20px;
+  color: inherit; text-decoration: none;
+  transition: transform .14s ease, box-shadow .14s ease;
 }
-.thumb img { border: 1px solid var(--rule); }
-a.card:hover .thumb { border-color: var(--spot); }
-a.card:hover .card-title { text-decoration: underline; text-underline-offset: 2px; }
-.thumb img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+/* 학회명·날짜를 패널 머리에 — 새로 나온 논문의 카테고리 줄처럼 */
+.card-kicker {
+  margin: 0; padding: 14px 20px 12px;
+  font-family: var(--sans); font-size: 11px; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--spot);
+}
+/* 판 높이를 고정해 셋이 나란히 서게 한다. 세로 포스터는 위쪽(제목 띠)을 보여 준다. */
+.thumb {
+  height: 250px; background: var(--tint); overflow: hidden; padding: 10px;
+  border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+}
+.thumb img {
+  width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block;
+  border: 1px solid var(--rule-2); background: #fff;
+}
 /* 아직 안 낸 자리는 빈 상자를 크게 남기지 않는다 — 있는 포스터가 주인공이다. */
 .thumb.none {
-  height: 92px; display: flex; align-items: center; justify-content: center; border-style: dashed;
-  color: var(--ink-3); font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase;
+  height: 230px; display: flex; align-items: center; justify-content: center;
+  background: transparent; border-top: 1px dashed var(--rule-2); border-bottom: 1px dashed var(--rule-2);
+  color: var(--ink-3); font-size: 12px; letter-spacing: .1em; text-transform: uppercase;
 }
-.card-body { padding: 15px 0 0; display: flex; flex-direction: column; gap: 7px; flex: 1; }
+.card-body { padding: 18px 20px 0; display: flex; flex-direction: column; gap: 9px; flex: 1; }
 .card-top { display: flex; align-items: center; gap: 9px; }
 /* 저자 전원. 발표자만 굵게 — 저널이 발표 저자를 표시하는 방식이다. */
-.card-authors { margin: 4px 0 0; font-size: 13.5px; line-height: 1.45; color: var(--ink-2); }
+.card-authors { margin: 0; font-size: 14px; line-height: 1.5; color: var(--ink-2); }
+.card-cta {
+  margin-top: auto; padding-top: 14px;
+  font-family: var(--sans); font-size: 13px; font-weight: 700; letter-spacing: .02em;
+  color: var(--ink-2);
+}
+.card-cta span { display: inline-block; transition: transform .14s ease; }
 .card-authors b { font-weight: 700; color: var(--ink); }
 .byline b { font-weight: 700; }
 .btn .ico { flex: none; margin-right: -1px; }
@@ -196,12 +222,13 @@ a.card:hover .card-title { text-decoration: underline; text-underline-offset: 2p
 .card-name { font-size: 15px; font-weight: 600; color: var(--ink); }
 .card-name .en { color: var(--ink-3); font-weight: 400; }
 .card-title {
-  font-family: var(--serif); font-weight: 650; margin: 4px 0 0; font-size: 17.5px; line-height: 1.32;
+  font-family: var(--serif); font-weight: 700; margin: 0; font-size: 20px; line-height: 1.28;
+  letter-spacing: -.008em;
   color: var(--ink); overflow-wrap: anywhere;
   display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
 }
-.card.pending .card-title { font-family: var(--sans); font-size: 14px; color: var(--ink-3); }
-.card.pending .card-name { font-size: 15px; }
+
+.card.pending .card-name { font-size: 16px; color: var(--ink-2); }
 .card-foot { margin-top: auto; padding-top: 9px; font-size: 13px; color: var(--ink-3); display: flex; flex-wrap: wrap; gap: 3px 12px; }
 
 /* ---------------------------------------------------------------- poster page */
