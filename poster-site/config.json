@@ -2,7 +2,9 @@
   "version": 1,
   "site": {
     "title": "CSNL Posters 2026",
-    "lab_name": "Cognitive and Systems Neuroscience Laboratory · Seoul National University",
+    "lab_name": "Cognitive and Systems Neuroscience Laboratory",
+    "department": "Department of Brain and Cognitive Sciences",
+    "university": "Seoul National University",
     "lab_short": "CSNL",
     "lede": "Posters to be presented at CBrain 2026 and KSBNS 2026, with additional material and contact details for each.",
     "lab_home_url": "https://www.snu-csnl.com/",

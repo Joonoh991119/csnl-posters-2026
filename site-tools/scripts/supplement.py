@@ -55,6 +55,32 @@ def _same(a: str, b: str) -> bool:
     return False
 
 
+# 각주 표식만 남은 앞머리 줄. 저자 줄을 걷어내면 † 가 가리킬 데가 없어져서
+# "† Corresponding author" 는 잘린 문장처럼 남는다. 연락처는 페이지가 따로 말한다.
+_MARKS = "†‡§¶*#⁎°○●◆■◇▲∗➤"
+_LABELS = re.compile(
+    r"^(?:corresponding\s+(?:author|authors)|correspondence(?:\s+to)?|"
+    r"co-?(?:first|corresponding)\s+authors?|"
+    r"(?:these\s+|both\s+)?authors?\s+contributed\s+equally|"
+    r"equal\s+contributions?|present\s+address|"
+    r"conflict\s+of\s+interest\s+statement)"
+    r"[\s:;,.\-–—]*$", re.I)
+
+
+def _orphan(text: str) -> bool:
+    """앞머리에서 지워도 되는 메타 잔여물인가. 본문 문장은 절대 건드리지 않는다."""
+    if not text:
+        return True
+    body = text.lstrip(_MARKS + "0123456789¹²³⁴⁵⁶⁷⁸⁹⁰ .,)]:;")
+    if not body:                       # 표식·번호만 남은 줄
+        return True
+    if _LABELS.match(body):            # 알려진 메타 라벨
+        return True
+    if text[0] in _MARKS and len(body.split()) <= 8 and "@" in body:
+        return True                    # † 로 시작하는 연락처 한 줄
+    return False
+
+
 def strip_front_matter(body: str, dupes: list[str]) -> tuple[str, int]:
     """문서 맨 앞의 제목 블록을 걷어낸다.
 
@@ -67,11 +93,16 @@ def strip_front_matter(body: str, dupes: list[str]) -> tuple[str, int]:
                     if x != -1] or [len(body)])
     head, rest = body[:head_end], body[head_end:]
     removed = 0
-    new_head, pos = [], 0
+    new_head, pos, in_front = [], 0, True
     for m in re.finditer(r"<(h1|p)\b[^>]*>.*?</\1\s*>", head, re.S | re.I):
         chunk = m.group(0)
         text = _norm(chunk)
+        raw = re.sub(r"\s+", " ", TAGS.sub("", chunk)).strip()
         drop = m.group(1).lower() == "h1" or any(_same(text, d) for d in dupes)
+        if not drop and in_front and _orphan(raw):
+            drop = True
+        if not drop and len(text.split()) >= 25:
+            in_front = False           # 여기서부터는 본문이다
         new_head.append(head[pos:m.start()])
         if drop:
             removed += 1

@@ -287,10 +287,14 @@ a:hover { text-decoration-color: var(--accent-hover); color: var(--accent-hover)
 }
 .plate img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .plate .zoom {
-  position: absolute; right: 8px; bottom: 8px; background: var(--surface);
-  border: 1px solid var(--rule-2); padding: 3px 9px; font-size: 11.5px;
-  font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2);
-  pointer-events: none;
+  position: absolute; right: 10px; bottom: 10px; width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface); border: 1px solid var(--rule-2); border-radius: 50%;
+  font-size: 21px; font-weight: 400; line-height: 1; color: var(--ink);
+  box-shadow: 0 1px 3px rgba(0,0,0,.12); pointer-events: none;
+}
+.plate:hover .zoom, .plate:focus-visible .zoom {
+  background: var(--accent-fill); border-color: var(--accent-fill); color: #fff;
 }
 .plate.empty {
   aspect-ratio: auto; max-width: none; cursor: default; border-style: dashed;
@@ -363,7 +367,18 @@ ol.refs a { word-break: break-all; }
   box-shadow: inset 0 4px 0 var(--band-mark);
 }
 .foot p { margin: 4px 0; max-width: var(--measure); }
-.foot p:first-child { color: var(--ink-2); font-weight: 600; }
+/* 연구실 · 학과 · 대학. 한 줄에 점으로 이어 붙이면 셋이 같은 층위로 읽힌다. */
+.org { margin: 0 0 16px; padding-bottom: 14px; border-bottom: 1px solid var(--rule); }
+.org p { margin: 0; max-width: var(--measure); }
+.org .org-lab {
+  font-family: var(--serif); font-size: 16px; font-weight: 700; line-height: 1.35;
+  color: var(--ink); letter-spacing: -.005em;
+}
+.org .org-dept { margin-top: 3px; font-size: 13.5px; font-weight: 600; color: var(--ink-2); }
+.org .org-univ {
+  margin-top: 2px; font-size: 11.5px; font-weight: 700; letter-spacing: .13em;
+  text-transform: uppercase; color: var(--ink-3);
+}
 .empty-note { border: 1px dashed var(--rule-2); padding: 20px; color: var(--ink-3); font-size: 14px; text-align: center; }
 
 /* ---------------------------------------------------------------- 서플 본문 */
@@ -447,6 +462,20 @@ ol.refs a { word-break: break-all; }
 }
 .supp pre { overflow-x: auto; background: var(--tint); padding: 14px 16px; border: 1px solid var(--rule); }
 .supp pre code { background: none; padding: 0; }
+
+/* 글만 있는 문서(초록)의 조판. 폭 68ch·15.5px 는 표와 그림이 섞인 서플의 값이고,
+   네 단락짜리 논증에는 줄이 길어 눈이 되돌아온다. 좁히고 벌린다. */
+.supp.prose { --measure: 58ch; }
+.supp.prose p { font-size: 16.5px; line-height: 1.78; margin: 0 0 20px; }
+.supp.prose > p:first-of-type {
+  font-size: 18px; line-height: 1.62; color: var(--ink); margin-bottom: 22px;
+}
+.supp.prose ul, .supp.prose ol { font-size: 16.5px; line-height: 1.78; }
+.supp.prose .math { font-size: 1.06em; }
+@media (max-width: 560px) {
+  .supp.prose p { font-size: 16px; line-height: 1.72; margin-bottom: 18px; }
+  .supp.prose > p:first-of-type { font-size: 17px; }
+}
 
 .supp-link { margin: 0 0 16px; }
 .supp-link:last-child { margin-bottom: 0; }

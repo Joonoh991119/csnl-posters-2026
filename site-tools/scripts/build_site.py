@@ -87,6 +87,32 @@ def logo_row(site: dict, rel: str, cls: str = "") -> str:
     return f'<div class="logos {cls}">{"".join(out)}</div>'
 
 
+def org_names(site: dict) -> list[tuple[str, str]]:
+    """연구실 · 학과 · 대학. 셋은 층위가 달라서 한 줄로 붙이면 무엇이 무엇인지 사라진다."""
+    rows = [("lab", site.get("lab_name") or site.get("lab_short") or ""),
+            ("dept", site.get("department") or ""),
+            ("univ", site.get("university") or "")]
+    return [(k, v.strip()) for k, v in rows if (v or "").strip()]
+
+
+def org_block(site: dict) -> str:
+    """꼬리에 세 줄로 적는다 — 연구실, 학과, 대학."""
+    rows = org_names(site)
+    if not rows:
+        return ""
+    return ('<div class="org">'
+            + "".join(f'<p class="org-{k}">{esc(v)}</p>' for k, v in rows)
+            + "</div>")
+
+
+def org_inline(site: dict) -> str:
+    """머리표·메타태그용 한 줄. 연구실과 대학만 — 가장 좁은 것과 가장 넓은 것."""
+    rows = [v for _k, v in org_names(site)]
+    if not rows:
+        return ""
+    return " · ".join(dict.fromkeys(rows[:1] + rows[-1:]))
+
+
 HOME_ICON = ('<svg class="ico" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" '
              'fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" '
              'stroke-linejoin="round"><path d="M2 6.6 8 2l6 4.6"/>'
@@ -194,7 +220,7 @@ def build_index(cfg: dict, people: dict[str, dict], out: Path, has_index_qr: boo
                 ver: str = "") -> None:
     site = cfg.get("site", {})
     title = site.get("title") or site.get("lab_short") or "Posters"
-    lab = site.get("lab_name") or site.get("lab_short") or ""
+    lab = org_inline(site)
 
     cards = []
     for part in ordered(cfg):
@@ -309,7 +335,7 @@ def build_index(cfg: dict, people: dict[str, dict], out: Path, has_index_qr: boo
 
 <footer class="foot"><div class="wrap">
   {logo_row({**site, "logos": [l for l in (site.get("logos") or []) if not l.get("lead")]}, "site")}
-  <p>{esc(lab)}</p>
+  {org_block(site)}
   {f'<p>Online {esc(fmt_date_en(w.get("start"), w.get("end")))}.</p>' if (w.get("start") or w.get("end")) else ""}
   <p>A temporary page kept open for the duration of the meeting.
      Copyright in each poster and its supplementary material remains with its authors.</p>
@@ -354,7 +380,7 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict, ver: 
         plate = (f'<button class="plate" style="{fstyle}" data-zoom="{esc(prev_rel)}" '
                  f'aria-label="Enlarge poster">'
                  f'<img src="{esc(prev_rel)}" alt="Poster: {esc(title)}">'
-                 f'<span class="zoom">Zoom</span></button>')
+                 f'<span class="zoom" aria-hidden="true">+</span></button>')
     elif file_rel:
         plate = ('<div class="plate empty"><p>No preview image was generated.</p>'
                  '<p>Open the original file below.</p></div>')
@@ -483,7 +509,7 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict, ver: 
 
 <footer class="foot"><div class="wrap">
   {logo_row({**site, "logos": [l for l in (site.get("logos") or []) if not l.get("lead")]}, "../site")}
-  <p>{esc(site.get('lab_name') or site.get('lab_short') or '')}</p>
+  {org_block(site)}
   <p>A temporary page kept open for the duration of the meeting.
      Copyright in the poster and its supplementary material remains with its authors.</p>
 </div></footer>
@@ -551,6 +577,8 @@ def build_doc_page(cfg: dict, p: dict, out: Path, pth: dict, ver: str, spec: dic
             src.read_text(encoding="utf-8", errors="replace"),
             out / "files" / pid / kind, f"../files/{pid}/{kind}", src.parent, dupes)
     notes = [f"{pid} · {kind}: {n}" for n in notes]
+    # 초록처럼 글만 있는 문서는 단 폭을 좁히고 줄간을 벌린다 — 표·그림 문서와 조판이 다르다
+    prose = " prose" if src.suffix.lower() == ".docx" else ""
 
     notice = spec.get("notice")
     notice_html = (f'<div class="notice" role="note">{esc(notice)}</div>' if notice else "")
@@ -580,12 +608,12 @@ def build_doc_page(cfg: dict, p: dict, out: Path, pth: dict, ver: str, spec: dic
     <p class="byline">{authors_html(p)}</p>
   </div></article>
 
-  <div class="wrap"><div class="supp">{body}</div></div>
+  <div class="wrap"><div class="supp{prose}">{body}</div></div>
 </main>
 
 <footer class="foot"><div class="wrap">
   {logo_row({**site, "logos": [l for l in (site.get("logos") or []) if not l.get("lead")]}, "../site")}
-  <p>{esc(site.get('lab_name') or site.get('lab_short') or '')}</p>
+  {org_block(site)}
   <p>A temporary page kept open for the duration of the meeting.
      Copyright in the poster and its supplementary material remains with its authors.</p>
 </div></footer>

@@ -65,6 +65,8 @@ def main() -> int:
         "site": {
             "title": payload.get("site", {}).get("title") or "Poster pages",
             "lab_name": payload.get("site", {}).get("lab_name") or "",
+            "department": payload.get("site", {}).get("department") or "",
+            "university": payload.get("site", {}).get("university") or "",
             "lab_short": payload.get("site", {}).get("lab_short") or "",
             "lede": payload.get("site", {}).get("lede") or "",
             "members_url": payload.get("site", {}).get("members_url") or "",
