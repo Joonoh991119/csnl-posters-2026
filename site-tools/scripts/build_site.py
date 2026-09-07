@@ -301,11 +301,10 @@ def build_index(cfg: dict, people: dict[str, dict], out: Path, has_index_qr: boo
     {'<div class="grid">' + "".join(cards) + '</div>' if cards
      else '<p class="empty-note">No participants registered yet.</p>'}
   </section>
-  {qr_block("index", (cfg.get("deploy", {}) or {}).get("url", "") or "", "qr", has_index_qr)}
 </div></main>
 
 <footer class="foot"><div class="wrap">
-  {logo_row(site, "site")}
+  {logo_row({**site, "logos": [l for l in (site.get("logos") or []) if not l.get("lead")]}, "site")}
   <p>{esc(lab)}</p>
   {f'<p>Online {esc(fmt_date_en(w.get("start"), w.get("end")))}.</p>' if (w.get("start") or w.get("end")) else ""}
   <p>A temporary page kept open for the duration of the meeting.
@@ -433,10 +432,6 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict, ver: 
         sections.append('<section class="section"><h2>Contact</h2>'
                         f'<div class="actions">{"".join(cbtns)}</div></section>')
 
-    base = (cfg.get("deploy", {}) or {}).get("url", "").rstrip("/")
-    sections.append(qr_block(pid, f"{base}/p/{pid}.html" if base else f"p/{pid}.html",
-                             "../qr", bool(nav.get("qr"))))
-
     def step(target, label, aria):
         if not target:
             return f'<span class="step" aria-disabled="true" aria-label="{aria}">{label}</span>'
@@ -481,7 +476,7 @@ def build_person(cfg: dict, p: dict, out: Path, files_rel: str, nav: dict, ver: 
 </main>
 
 <footer class="foot"><div class="wrap">
-  {logo_row(site, "../site")}
+  {logo_row({**site, "logos": [l for l in (site.get("logos") or []) if not l.get("lead")]}, "../site")}
   <p>{esc(site.get('lab_name') or site.get('lab_short') or '')}</p>
   <p>A temporary page kept open for the duration of the meeting.
      Copyright in the poster and its supplementary material remains with its authors.</p>
@@ -583,7 +578,7 @@ def build_doc_page(cfg: dict, p: dict, out: Path, pth: dict, ver: str, spec: dic
 </main>
 
 <footer class="foot"><div class="wrap">
-  {logo_row(site, "../site")}
+  {logo_row({**site, "logos": [l for l in (site.get("logos") or []) if not l.get("lead")]}, "../site")}
   <p>{esc(site.get('lab_name') or site.get('lab_short') or '')}</p>
   <p>A temporary page kept open for the duration of the meeting.
      Copyright in the poster and its supplementary material remains with its authors.</p>
