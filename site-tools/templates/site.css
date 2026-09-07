@@ -6,7 +6,10 @@
    Accents are the cnsplots journal palette (github.com/faridrashidi/cnsplots)
    darkened until text contrast reaches WCAG AA:
      BLUE #5189BB → #3E7099 (5.27:1)   RED #D6372E → #C22F27 (5.63:1)
-   No purple anywhere. */
+   No purple anywhere, and one theme only — the page is white paper in every setting.
+   The dark variant was removed on purpose: a poster is printed on white, and a page that
+   flips to black under the reader's OS shows the same figure on a ground it was never
+   designed for. */
 
 :root {
   --paper: #ffffff;           /* 저널은 흰 종이에 찍는다. 지면 전체가 흰색이고 구획은 선이 한다 */
@@ -29,26 +32,6 @@
     Helvetica, Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
   --maxw: 940px;
   --measure: 68ch;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #101114;
-    --surface: #16171a;
-    --tint: #1c1e22;
-    --ink: #f4f4f2;
-    --ink-2: #c8ccd2;
-    --ink-3: #8a9099;
-    --rule: #2a2c30;
-    --rule-2: #3a3d43;
-    --accent: #8fb4d6;          /* 8.69:1 */
-    /* 라이트의 근검정 버튼을 그대로 뒤집는다 — 밝은 채움 + 어두운 글자 */
-    --accent-fill: #e8e8e6;
-    --accent-fill-ink: #101114;
-    --spot: #d9736a;            /* 5.64:1 */
-    --warn-bg: #1c1e22;
-    --warn-ink: #c8ccd2;
-  }
 }
 
 * { box-sizing: border-box; }
@@ -348,18 +331,19 @@ ol.refs a { word-break: break-all; }
 .supp-link { margin: 0 0 16px; }
 
 /* ---------------------------------------------------------------- lightbox */
-.lightbox { position: fixed; inset: 0; z-index: 100; display: none; background: rgba(10, 10, 12, .95); }
+/* 확대 장막도 밝게. 포스터는 흰 종이라 검은 바탕에 얹으면 지면과 따로 논다. */
+.lightbox { position: fixed; inset: 0; z-index: 100; display: none; background: rgba(248, 248, 246, .97); }
 .lightbox.on { display: block; }
 .lightbox .stage { position: absolute; inset: 0; overflow: auto; -webkit-overflow-scrolling: touch; touch-action: pan-x pan-y pinch-zoom; }
-.lightbox img { display: block; margin: auto; max-width: 100%; }
+.lightbox img { display: block; margin: auto; max-width: 100%; background: var(--surface); }
 .lightbox img.full { max-width: none; width: auto; }
-.lb-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 2; display: flex; gap: 8px; justify-content: flex-end; padding: 10px 12px; background: linear-gradient(rgba(0,0,0,.6), transparent); }
+.lb-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 2; display: flex; gap: 8px; justify-content: flex-end; padding: 10px 12px; background: linear-gradient(var(--paper), transparent); }
 .lb-btn {
   min-height: 38px; padding: 8px 14px; border-radius: 3px; cursor: pointer;
-  background: rgba(255,255,255,.14); color: #fff; border: 1px solid rgba(255,255,255,.4);
+  background: var(--surface); color: var(--ink); border: 1px solid var(--rule-2);
   font-family: var(--sans); font-size: 13px; font-weight: 600; letter-spacing: .04em;
 }
-.lb-btn:hover { background: rgba(255,255,255,.24); }
+.lb-btn:hover { border-color: var(--ink-3); }
 
 /* 손가락으로 누르는 화면에서는 타깃을 더 키운다 (Apple HIG 44pt) */
 @media (pointer: coarse) {

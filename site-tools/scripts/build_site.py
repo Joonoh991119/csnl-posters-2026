@@ -49,7 +49,7 @@ def head(title: str, desc: str, css: str, noindex: bool, og: dict | None = None)
     tags = [
         '<meta charset="utf-8">',
         '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">',
-        '<meta name="color-scheme" content="light dark">',
+        '<meta name="color-scheme" content="light">',   # 한 가지 테마만 — OS 다크에서도 흰 지면
         f"<title>{esc(title)}</title>",
         f'<meta name="description" content="{esc(desc)}">',
     ]

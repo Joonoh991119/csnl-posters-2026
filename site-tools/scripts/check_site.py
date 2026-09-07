@@ -145,7 +145,28 @@ def main() -> int:
         if not p.get("references"):
             infos.append(f"{who}: references 없음 (선택 항목 — 섹션이 안 그려진다)")
 
+    # ---- dist 안의 모든 링크가 실제 파일을 가리키는지 ----
     dist = pth["dist"]
+    if (dist / "index.html").exists():
+        import re as _re
+        broken, ext = [], 0
+        for page in sorted(dist.rglob("*.html")):
+            html = page.read_text(encoding="utf-8", errors="replace")
+            for ref in set(_re.findall(r'(?:href|src)="([^"]+)"', html)):
+                if ref.startswith(("http://", "https://", "data:", "mailto:", "#")):
+                    ext += 1
+                    continue
+                target = (page.parent / ref.split("?")[0].split("#")[0]).resolve()
+                if not target.exists():
+                    broken.append(f"{page.relative_to(dist)} → {ref}")
+        if broken:
+            for b in broken[:12]:
+                errors.append(f"링크가 가리키는 파일이 없다: {b}")
+            if len(broken) > 12:
+                errors.append(f"… 그런 링크가 {len(broken) - 12}건 더 있다")
+        else:
+            infos.append(f"dist 안의 내부 링크가 모두 실제 파일을 가리킨다 (외부 링크 {ext}건은 확인하지 않음)")
+
     if dist.exists():
         newest_src = max((f.stat().st_mtime for f in list(pth["people"].glob("*.json"))
                           + [pth["config"]] if f.exists()), default=0)
